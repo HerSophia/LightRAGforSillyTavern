@@ -84,8 +84,8 @@ async def main():
             working_dir=WORKING_DIR,
             llm_model_func=llm_model_func,
             embedding_func=EmbeddingFunc(
-                embedding_dim=768,
-                max_token_size=2048,
+                embedding_dim=embedding_dimension,
+                max_token_size=EMBEDDING_MAX_TOKEN_SIZE,
                 func=embedding_func,
             ),
         )

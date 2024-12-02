@@ -25,6 +25,15 @@ This repository hosts the code of LightRAG. The structure of this code is based 
 ![LightRAG Diagram](https://i-blog.csdnimg.cn/direct/b2aaf634151b4706892693ffb43d9093.png)
 </div>
 
+## 写在前面
+### 1.该项目尚未完成，随时会update，所以暂时仅供内测
+### 2.在开始前请确保你知道你正在做什么以及你使用该项目的目的
+### 3.运行之前请更改.env中的环境变量(目前仅直接支持OpenAI模型，其他模型请使用中转系统来支持OpenAI标准格式的响应)
+### 4.lightrag_openai_compatible_demo.py为创建图谱，请查看并进行修改以创建你自己的知识图谱
+### 5.lightrag_api_openai_compatible_demo.py为运行API服务，运行后可响应任意前端
+### 6.目前暂时还不可响应前端的embedding服务，我们认为暂时不需要
+### 7.未来我们会逐步完善，目前正在实现上传文件并插入现有知识图谱的功能
+
 ## 🎉 News
 - [x] [2024.11.19]🎯📢A comprehensive guide to LightRAG is now available on [LearnOpenCV](https://learnopencv.com/lightrag). Many thanks to the blog author!
 - [x] [2024.11.12]🎯📢LightRAG now supports [Oracle Database 23ai for all storage types (KV, vector, and graph)](https://github.com/HKUDS/LightRAG/blob/main/examples/lightrag_oracle_demo.py).
