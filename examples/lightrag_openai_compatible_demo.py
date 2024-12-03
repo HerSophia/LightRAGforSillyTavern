@@ -19,8 +19,8 @@ async def llm_model_func(
         prompt,
         system_prompt=system_prompt,
         history_messages=history_messages,
-        api_key='sk-eHIvLnV8qpB21S6q436aC6E72a1e44A4B78f4d6d3e058b8a',
-        base_url="https://www-my-office.rc6s3wcue.nyat.app:13332/v1",
+        api_key='',
+        base_url="",
         **kwargs,
     )
 
@@ -29,8 +29,8 @@ async def embedding_func(texts: list[str]) -> np.ndarray:
     return await openai_embedding(
         texts,
         model="text-embedding-004",
-        api_key='sk-eHIvLnV8qpB21S6q436aC6E72a1e44A4B78f4d6d3e058b8a',
-        base_url="https://www-my-office.rc6s3wcue.nyat.app:13332/v1",
+        api_key='',
+        base_url="",
     )
 
 
