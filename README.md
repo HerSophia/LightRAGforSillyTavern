@@ -32,7 +32,7 @@ This repository hosts the code of LightRAG. The structure of this code is based 
 ### 4.lightrag_openai_compatible_demo.py为创建图谱，请查看并进行修改以创建你自己的知识图谱
 ### 5.lightrag_api_openai_compatible_demo.py为运行API服务，运行后可响应任意前端
 ### 6.目前暂时还不可响应前端的embedding服务，我们认为暂时不需要
-### 7.未来我们会逐步完善，目前已写好一个前端并且大部分功能已完成，预计在2025年发布并进行规模测试
+### 7.未来我们会逐步完善，目前已写好一个前端并且大部分功能已完成，预计在2025年元旦后发布并进行规模测试
 
 ## 🎉 News
 - [x] [2024.11.19]🎯📢A comprehensive guide to LightRAG is now available on [LearnOpenCV](https://learnopencv.com/lightrag). Many thanks to the blog author!
