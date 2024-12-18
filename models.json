@@ -1,0 +1,13 @@
+{
+    "LLM": {
+        "GPT-4": 4096,
+        "GPT-3.5": 2048,
+        "gemini-1.5-pro": 8192,
+        "gemini-1.5-flash": 8192
+    },
+    "Embedding": {
+        "BERT": 512,
+        "SentenceTransformer": 1024,
+        "text-embedding-004": 2048
+    }
+}
