@@ -630,6 +630,7 @@ async def openai_compatible_embedding(
     response = await openai_async_client.embeddings.create(
         model=model, input=texts, encoding_format="float"
     )
+    #print(response)
     return np.array([dp.embedding for dp in response.data])
 
 @wrap_embedding_func_with_attrs(embedding_dim=1536, max_token_size=8192)

@@ -226,28 +226,40 @@ class LightRAG:
         }
 
     def insert(self, string_or_strings):
+        load_dotenv()
         loop = always_get_an_event_loop()
         return loop.run_until_complete(self.ainsert(string_or_strings))
 
     async def ainsert(self, string_or_strings):
+        """
+        插入文档或复用已有分块。原代码在遇到hash值相同的文本块会直接跳过并返回，我们对此进行了修改。在这样的情况下会使用已有的文本块，不会覆盖或者重新生成。
+        适用于文本内容相同但使用新的Prompt的场景。不过目前还只是摆设，只能等解决extract_entities这个部分。
+        """
+        load_dotenv()
         update_storage = False
         try:
             if isinstance(string_or_strings, str):
                 string_or_strings = [string_or_strings]
 
+            # 生成文档键
             new_docs = {
                 compute_mdhash_id(c.strip(), prefix="doc-"): {"content": c.strip()}
                 for c in string_or_strings
             }
-            _add_doc_keys = await self.full_docs.filter_keys(list(new_docs.keys()))
-            new_docs = {k: v for k, v in new_docs.items() if k in _add_doc_keys}
-            if not len(new_docs):
-                logger.warning("All docs are already in the storage")
-                return
-            update_storage = True
-            logger.info(f"[New Docs] inserting {len(new_docs)} docs")
+            un_existing_doc_keys = await self.full_docs.filter_keys(list(new_docs.keys()))
+            existing_doc_keys = {k for k in new_docs.keys() if k not in un_existing_doc_keys}
+            docs_to_insert = {k: v for k, v in new_docs.items() if k in un_existing_doc_keys}
 
+            # 如果所有文档都已存在，显示警告
+            if not docs_to_insert and not len(un_existing_doc_keys):
+                logger.warning("All docs are already in the storage")
+
+            update_storage = True
+            logger.info(f"[New Docs] inserting {len(docs_to_insert)} docs, reusing {len(existing_doc_keys)} docs")
+
+            # 构建分块
             inserting_chunks = {}
+            reused_chunks = {}  # 存储复用的分块
             for doc_key, doc in new_docs.items():
                 chunks = {
                     compute_mdhash_id(dp["content"], prefix="chunk-"): {
@@ -261,20 +273,22 @@ class LightRAG:
                         tiktoken_model=self.tiktoken_model_name,
                     )
                 }
-                inserting_chunks.update(chunks)
-            _add_chunk_keys = await self.text_chunks.filter_keys(
-                list(inserting_chunks.keys())
-            )
-            inserting_chunks = {
-                k: v for k, v in inserting_chunks.items() if k in _add_chunk_keys
-            }
-            if not len(inserting_chunks):
-                logger.warning("All chunks are already in the storage")
-                return
-            logger.info(f"[New Chunks] inserting {len(inserting_chunks)} chunks")
 
-            await self.chunks_vdb.upsert(inserting_chunks)
+                # 检查分块是否已存在
+                chunk_keys = list(chunks.keys())
+                un_existing_chunk_keys = await self.text_chunks.filter_keys(chunk_keys)
 
+                # 分离已存在和待插入的分块
+                reused_chunks.update({k: chunks[k] for k in chunks.keys() if k not in un_existing_chunk_keys})
+                inserting_chunks.update({k: v for k, v in chunks.items() if k in un_existing_chunk_keys})
+
+            logger.info(f"[New Chunks] inserting {len(inserting_chunks)} chunks, reusing {len(reused_chunks)} chunks")
+
+            # 插入新分块
+            if inserting_chunks:
+                await self.chunks_vdb.upsert(inserting_chunks)
+
+            # 更新实体和关系图
             logger.info("[Entity Extraction]...")
             maybe_new_kg = await extract_entities(
                 inserting_chunks,
@@ -285,11 +299,16 @@ class LightRAG:
             )
             if maybe_new_kg is None:
                 logger.warning("No new entities and relationships found")
-                return
-            self.chunk_entity_relation_graph = maybe_new_kg
+            else:
+                self.chunk_entity_relation_graph = maybe_new_kg
 
-            await self.full_docs.upsert(new_docs)
+            # 插入新文档到存储
+            if docs_to_insert:
+                await self.full_docs.upsert(docs_to_insert)
+
+            # 确保所有分块都写入到分块存储中
             await self.text_chunks.upsert(inserting_chunks)
+            await self.text_chunks.upsert(reused_chunks)
         finally:
             if update_storage:
                 await self._insert_done()
