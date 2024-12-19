@@ -209,3 +209,4 @@ xlsxwriter==3.2.0
 xxhash==3.5.0
 yarl==1.18.0
 zipp==3.19.2
+textract-py3
