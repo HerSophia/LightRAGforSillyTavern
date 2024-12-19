@@ -21,8 +21,8 @@ This repository hosts the code of LightRAG. The structure of this code is based 
 #### 1.将响应格式写为OpenAI标准响应格式，并且支持Prefill
 #### 2.多文件的构建与插入图谱
 #### 3.热切换模型，自动填入模型名称与Max_tokens
-#### 4.更灵活的上下文处理策略（有待完善，已经在代码里写好）
-#### 5.简单但全面的前端，方便管理RAG系统：文档上传，图谱管理
+#### 5.支持来自问答/聊天系统的Prompt，其将与RAG自带的Prompt进行结合并输出至LLM
+#### 6.简单但全面的前端，方便管理RAG系统：文档上传，图谱管理
 
 ### 前端一览
 ![image.png](https://s2.loli.net/2024/12/18/XDjilpqvQBruVtE.png)
