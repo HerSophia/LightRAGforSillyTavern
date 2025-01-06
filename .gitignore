@@ -13,7 +13,7 @@ ignore_this.txt
 *.ignore.*
 .ruff_cache/
 /backup/
-/python/
+/python/Lib
 lightrag.log
 /graph/
 /files/
@@ -28,3 +28,5 @@ venv/
 examples/input/
 examples/output/
 /DS_Store
+/global_entities.txt
+/output_hint_prompt.txt
