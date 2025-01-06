@@ -4,7 +4,7 @@ import re
 import os
 from dotenv import load_dotenv
 from Levenshtein import ratio
-from numba import Optional
+#from numba import Optional
 from tqdm.asyncio import tqdm as tqdm_async
 from typing import Union
 from collections import Counter, defaultdict
@@ -259,6 +259,15 @@ async def _merge_edges_then_upsert(
 
     return edge_data
 
+def output_prompt(prompt):
+    output_path = r"H:\LightRAG-for-OpenAI-Standard-Frontend\output_hint_prompt.txt"
+
+    # 确保父目录存在
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    # 写入文件，保留空格和换行
+    with open(output_path, 'w', encoding='utf-8', newline='') as file:
+        file.write(prompt)
+    return None
 
 async def extract_entities(
     chunks: dict[str, TextChunkSchema],
@@ -307,6 +316,7 @@ async def extract_entities(
         completion_delimiter=PROMPTS["DEFAULT_COMPLETION_DELIMITER"],
         entity_types=",".join(entity_types),
         examples=examples,
+        existing_entities=[],
         language=language,
     )
 
@@ -368,26 +378,19 @@ async def extract_entities(
         chunk_key = chunk_key_dp[0]
         chunk_dp = chunk_key_dp[1]
         content = chunk_dp["content"]
+        # hint_prompt = entity_extract_prompt.format(**context_base, input_text=content)
         # 从全局变量获取当前已解析的实体
-        async with global_entities_lock:
-            existing_entities_context = "\n".join(
-                [f"- {entity['name']}: {entity['description']}" for entity in global_entities.values()]
-            )
 
-        # 更新上下文
-        context_base_with_entities = context_base.copy()
-        context_base_with_entities["existing_entities"] = existing_entities_context
-
-        # 将已解析实体加入到提示中
         hint_prompt = entity_extract_prompt.format(
-            **context_base_with_entities,
-            input_text=content
-        )
-        #print(hint_prompt)
+            **context_base, input_text="{input_text}"
+        ).format(**context_base, input_text=content)
+        output_prompt(hint_prompt)
         final_result = await _user_llm_func_with_cache(hint_prompt)
         history = pack_user_ass_to_openai_messages(hint_prompt, final_result)
         for now_glean_index in range(entity_extract_max_gleaning):
-            glean_result = await _user_llm_func_with_cache(continue_prompt, history_messages=history)
+            glean_result = await _user_llm_func_with_cache(
+                continue_prompt, history_messages=history
+            )
 
             history += pack_user_ass_to_openai_messages(continue_prompt, glean_result)
             final_result += glean_result
@@ -430,9 +433,6 @@ async def extract_entities(
                 maybe_edges[(if_relation["src_id"], if_relation["tgt_id"])].append(
                     if_relation
                 )
-
-            # 更新全局实体
-        # 更新全局实体
         async with global_entities_lock:
             for entity_name, entities in maybe_nodes.items():
                 for new_entity in entities:
@@ -444,7 +444,6 @@ async def extract_entities(
                     else:
                         # 如果不存在该实体，直接添加
                         global_entities[entity_name] = new_entity
-        #print(f"global_entities:\n",global_entities)
         already_processed += 1
         already_entities += len(maybe_nodes)
         already_relations += len(maybe_edges)

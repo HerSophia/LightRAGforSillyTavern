@@ -14,6 +14,8 @@ PROMPTS["entity_extraction"] = """-Goal-
 给定一份可能与此活动相关的文本文件和一个实体类型列表，从文本中识别出所有属于这些类型的实体，以及识别出的实体之间的所有关系。
 Use {language} as output language.
 
+
+
 -Steps-
 1. 识别所有实体。对每个实体，提取以下信息：
 - entity_name: 用输入文本的语言标识实体名称，尽量具体，避免模糊概念。例如，将“组织”替换为“XYZ公司”。
@@ -46,6 +48,7 @@ Use {language} as output language.
 -Real Data-
 ######################
 Entity_types: {entity_types}
+
 Text: {input_text}
 ######################
 Output:
@@ -121,15 +124,6 @@ Output:
 ("relationship"{tuple_delimiter}"Alex"{tuple_delimiter}"Humanity's Response"{tuple_delimiter}"Alex and his team are the key figures in Humanity's Response to the unknown intelligence."{tuple_delimiter}"collective action, cosmic significance"{tuple_delimiter}8){record_delimiter}
 ("relationship"{tuple_delimiter}"Control"{tuple_delimiter}"Intelligence"{tuple_delimiter}"The concept of Control is challenged by the Intelligence that writes its own rules."{tuple_delimiter}"power dynamics, autonomy"{tuple_delimiter}7){record_delimiter}
 ("content_keywords"{tuple_delimiter}"first contact, control, communication, cosmic significance"){completion_delimiter}
-#############################
--Real Data-
-######################
-Entity_types: {entity_types}
-Existing_entities: {existing_entities}
-Text: {input_text}
-######################
-Output:
-"""
 #############################""",
 ]
 
