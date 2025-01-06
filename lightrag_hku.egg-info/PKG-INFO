@@ -1,0 +1,309 @@
+Metadata-Version: 2.1
+Name: lightrag-hku
+Version: 1.0.1
+Summary: LightRAG: Simple and Fast Retrieval-Augmented Generation
+Home-page: https://github.com/HKUDS/LightRAG
+Author: ZiruiGuo
+Project-URL: Documentation, https://github.com/HKUDS/LightRAG
+Project-URL: Source, https://github.com/HKUDS/LightRAG
+Project-URL: Tracker, https://github.com/HKUDS/LightRAG/issues
+Classifier: Development Status :: 4 - Beta
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: accelerate==1.1.1
+Requires-Dist: aioboto3==13.2.0
+Requires-Dist: aiobotocore==2.15.2
+Requires-Dist: aiofiles==23.2.1
+Requires-Dist: aiohappyeyeballs==2.4.3
+Requires-Dist: aiohttp==3.11.7
+Requires-Dist: aioitertools==0.12.0
+Requires-Dist: aiosignal==1.3.1
+Requires-Dist: annotated-types==0.7.0
+Requires-Dist: anyio==4.6.2.post1
+Requires-Dist: anytree==2.12.1
+Requires-Dist: argcomplete==3.5.2
+Requires-Dist: asttokens==2.4.1
+Requires-Dist: attrs==24.2.0
+Requires-Dist: autocommand==2.2.2
+Requires-Dist: autograd==1.7.0
+Requires-Dist: backports.tarfile==1.2.0
+Requires-Dist: beartype==0.18.5
+Requires-Dist: beautifulsoup4==4.12.3
+Requires-Dist: boto3==1.35.36
+Requires-Dist: botocore==1.35.36
+Requires-Dist: bottleneck==1.4.2
+Requires-Dist: brotli==1.0.9
+Requires-Dist: certifi==2024.8.30
+Requires-Dist: cffi==1.17.1
+Requires-Dist: chardet==5.2.0
+Requires-Dist: charset-normalizer==3.3.2
+Requires-Dist: click==8.1.7
+Requires-Dist: colorama==0.4.6
+Requires-Dist: colorclass==2.2.2
+Requires-Dist: compressed-rtf==1.0.6
+Requires-Dist: contourpy==1.3.1
+Requires-Dist: cryptography==43.0.3
+Requires-Dist: cycler==0.12.1
+Requires-Dist: decorator==5.1.1
+Requires-Dist: distro==1.9.0
+Requires-Dist: docx2txt==0.8
+Requires-Dist: easygui==0.98.3
+Requires-Dist: easyprocess==1.1
+Requires-Dist: ebcdic==1.1.1
+Requires-Dist: entrypoint2==1.1
+Requires-Dist: executing==2.1.0
+Requires-Dist: extract-msg==0.52.0
+Requires-Dist: fastapi==0.115.5
+Requires-Dist: ffmpy==0.4.0
+Requires-Dist: filelock==3.16.1
+Requires-Dist: fonttools==4.55.0
+Requires-Dist: frozenlist==1.5.0
+Requires-Dist: fsspec==2024.10.0
+Requires-Dist: gensim==4.3.3
+Requires-Dist: gradio-client==1.5.0
+Requires-Dist: gradio==5.7.1
+Requires-Dist: graspologic-native==1.2.1
+Requires-Dist: graspologic==3.4.1
+Requires-Dist: greenlet==3.1.1
+Requires-Dist: h11==0.14.0
+Requires-Dist: hnswlib==0.8.0
+Requires-Dist: httpcore==1.0.7
+Requires-Dist: httpx==0.27.2
+Requires-Dist: huggingface-hub==0.26.2
+Requires-Dist: hyppo==0.4.0
+Requires-Dist: idna==3.10
+Requires-Dist: importlib-metadata==8.0.0
+Requires-Dist: importlib-resources==6.4.0
+Requires-Dist: inflate64==1.0.0
+Requires-Dist: inflect==7.3.1
+Requires-Dist: iniconfig==2.0.0
+Requires-Dist: ipython==8.29.0
+Requires-Dist: jaraco.collections==5.1.0
+Requires-Dist: jaraco.context==5.3.0
+Requires-Dist: jaraco.functools==4.0.1
+Requires-Dist: jaraco.text==3.12.1
+Requires-Dist: jedi==0.19.2
+Requires-Dist: jinja2==3.1.4
+Requires-Dist: jiter==0.7.1
+Requires-Dist: jmespath==1.0.1
+Requires-Dist: joblib==1.4.2
+Requires-Dist: jsonpickle==4.0.0
+Requires-Dist: kiwisolver==1.4.7
+Requires-Dist: lark==1.1.9
+Requires-Dist: lightrag-hku==1.0.1
+Requires-Dist: llvmlite==0.43.0
+Requires-Dist: lxml==5.3.0
+Requires-Dist: markdown-it-py==3.0.0
+Requires-Dist: markupsafe==2.0
+Requires-Dist: matplotlib-inline==0.1.7
+Requires-Dist: matplotlib==3.9.2
+Requires-Dist: mdurl==0.1.2
+Requires-Dist: mkl-fft==1.3.11
+Requires-Dist: mkl-random==1.2.8
+Requires-Dist: mkl-service==2.4.2
+Requires-Dist: more-itertools==10.3.0
+Requires-Dist: mpmath==1.3.0
+Requires-Dist: msoffcrypto-tool==5.4.2
+Requires-Dist: multidict==6.1.0
+Requires-Dist: multivolumefile==0.2.3
+Requires-Dist: nano-vectordb==0.0.4.3
+Requires-Dist: neo4j==5.26.0
+Requires-Dist: nest-asyncio==1.6.0
+Requires-Dist: networkx==3.4.2
+Requires-Dist: numba==0.60.0
+Requires-Dist: numexpr==2.10.1
+Requires-Dist: numpy==1.26.4
+Requires-Dist: olefile==0.47
+Requires-Dist: oletools==0.60.2
+Requires-Dist: ollama==0.4.0
+Requires-Dist: openai==1.55.0
+Requires-Dist: oracledb==2.5.0
+Requires-Dist: orjson==3.10.12
+Requires-Dist: packaging==24.2
+Requires-Dist: pandas==2.2.3
+Requires-Dist: parso==0.8.4
+Requires-Dist: patsy==1.0.1
+Requires-Dist: pcodedmp==1.2.6
+Requires-Dist: pdfminer.six==20240706
+Requires-Dist: pillow==11.0.0
+Requires-Dist: pip==24.2
+Requires-Dist: platformdirs==4.2.2
+Requires-Dist: playwright==1.49.0
+Requires-Dist: pluggy==1.5.0
+Requires-Dist: ply==3.11
+Requires-Dist: pot==0.9.5
+Requires-Dist: prompt-toolkit==3.0.48
+Requires-Dist: propcache==0.2.0
+Requires-Dist: psutil==6.1.0
+Requires-Dist: pure-eval==0.2.3
+Requires-Dist: pybcj==1.0.2
+Requires-Dist: pycparser==2.22
+Requires-Dist: pycryptodomex==3.21.0
+Requires-Dist: pydantic-core==2.27.1
+Requires-Dist: pydantic==2.10.1
+Requires-Dist: pydub==0.25.1
+Requires-Dist: pyee==12.0.0
+Requires-Dist: pygments==2.18.0
+Requires-Dist: pynndescent==0.5.13
+Requires-Dist: pyparsing==3.2.0
+Requires-Dist: pyppmd==1.1.0
+Requires-Dist: pyqt5-sip==12.13.0
+Requires-Dist: pyqt5==5.15.10
+Requires-Dist: pysocks==1.7.1
+Requires-Dist: pytest-base-url==2.1.0
+Requires-Dist: pytest-playwright==0.6.2
+Requires-Dist: pytest==8.3.4
+Requires-Dist: python-dateutil==2.9.0.post0
+Requires-Dist: python-dotenv==0.21.0
+Requires-Dist: python-multipart==0.0.12
+Requires-Dist: python-pptx==1.0.2
+Requires-Dist: python-slugify==8.0.4
+Requires-Dist: pytz==2024.2
+Requires-Dist: pyvis==0.3.2
+Requires-Dist: pyyaml==6.0.2
+Requires-Dist: pyzstd==0.16.2
+Requires-Dist: red-black-tree-mod==1.20
+Requires-Dist: regex==2024.11.6
+Requires-Dist: requests==2.32.3
+Requires-Dist: rich==13.9.4
+Requires-Dist: rtfde==0.1.2
+Requires-Dist: ruff==0.8.1
+Requires-Dist: s3transfer==0.10.4
+Requires-Dist: safehttpx==0.1.6
+Requires-Dist: safetensors==0.4.5
+Requires-Dist: scikit-learn==1.5.2
+Requires-Dist: scipy==1.12.0
+Requires-Dist: seaborn==0.13.2
+Requires-Dist: semantic-version==2.10.0
+Requires-Dist: setuptools==75.1.0
+Requires-Dist: shellingham==1.5.4
+Requires-Dist: sip==6.7.12
+Requires-Dist: six==1.16.0
+Requires-Dist: smart-open==7.0.5
+Requires-Dist: sniffio==1.3.1
+Requires-Dist: soupsieve==2.6
+Requires-Dist: speechrecognition==3.11.0
+Requires-Dist: stack-data==0.6.3
+Requires-Dist: starlette==0.41.3
+Requires-Dist: statsmodels==0.14.4
+Requires-Dist: sympy==1.13.1
+Requires-Dist: tenacity==9.0.0
+Requires-Dist: text-unidecode==1.3
+Requires-Dist: textract-py3==2.1.0
+Requires-Dist: texttable==1.7.0
+Requires-Dist: threadpoolctl==3.5.0
+Requires-Dist: tiktoken==0.8.0
+Requires-Dist: tokenizers==0.20.3
+Requires-Dist: tomli==2.0.1
+Requires-Dist: tomlkit==0.12.0
+Requires-Dist: torch==2.5.1
+Requires-Dist: tornado==6.4.1
+Requires-Dist: tqdm==4.67.0
+Requires-Dist: traitlets==5.14.3
+Requires-Dist: transformers==4.46.3
+Requires-Dist: typeguard==4.3.0
+Requires-Dist: typer==0.15.0
+Requires-Dist: typing-extensions==4.12.2
+Requires-Dist: tzdata==2024.2
+Requires-Dist: tzlocal==5.2
+Requires-Dist: umap-learn==0.5.7
+Requires-Dist: unicodedata2==15.1.0
+Requires-Dist: urllib3==2.2.3
+Requires-Dist: uvicorn==0.32.1
+Requires-Dist: wcwidth==0.2.13
+Requires-Dist: websockets==12.0
+Requires-Dist: wheel==0.44.0
+Requires-Dist: win-inet-pton==1.1.0
+Requires-Dist: win-unicode-console==0.5
+Requires-Dist: wrapt==1.17.0
+Requires-Dist: xlrd==2.0.1
+Requires-Dist: xlsxwriter==3.2.0
+Requires-Dist: xxhash==3.5.0
+Requires-Dist: yarl==1.18.0
+Requires-Dist: zipp==3.19.2
+
+<center><h2>🚀 LightRAG: For OpenAI Response Standard</h2></center>
+
+
+![image.png](https://s2.loli.net/2024/12/18/uQAtk4C7Zm9IXVF.png)
+
+This repository hosts the code of LightRAG. The structure of this code is based on [nano-graphrag](https://github.com/gusye1234/nano-graphrag).
+![image.png](https://s2.loli.net/2024/12/18/yi1chsHWmCXTNrA.png)
+</div>
+
+### 写在最开头
+非常感谢香港大学团队（[@HKUDS](https://github.com/HKUDS "@HKUDS")）的工作，没有他们就没有这一切。没有他们的无私开源，就不会有现在这个项目——我们只是在他们开垦的一片天地中上做了点微小的工作。
+
+### 本项目的目标
+#### 1.支持OpenAI标准响应格式，以便将LightRAG集成至更多地方
+#### 2.方便管理RAG系统
+
+### 本项目适用于？
+#### 想为大模型搭建高效准确的知识库，但是不需要多余的功能，内存不敏感，低并发条件
+
+### 我们做了什么？
+#### 1.将响应格式写为OpenAI标准响应格式，并且支持Prefill
+#### 2.多文件的构建与插入图谱
+#### 3.热切换模型，自动填入模型名称与Max_tokens
+#### 4.更灵活的上下文处理策略（有待完善，已经在代码里写好）
+#### 5.简单但全面的前端，方便管理RAG系统：文档上传，图谱管理
+
+### 前端一览
+![image.png](https://s2.loli.net/2024/12/18/XDjilpqvQBruVtE.png)
+
+![image.png](https://s2.loli.net/2024/12/18/T7U6brEgpstDR3q.png)
+
+![image.png](https://s2.loli.net/2024/12/18/CLW7dhxicOepyFR.png)
+
+### 未来？
+#### 1.SubSetting：添加次要设置，为用户实现更具性价比的图谱构建
+#### 2.More Prompt：实时切换Prompt
+#### 3.HTML to Graph
+#### And more...
+
+### 如何使用？
+#### 0.如果你会使用诸如Anaconda的管理工具，安装步骤可以直接不用看（但别忘了下面这句）
+```python
+pip install -e .
+```
+#### 1.在项目的根目录中找到setup.bat并双击打开
+#### 2.待项目的依赖包安装完毕之后，双击打开Start.bat（首次使用前需要手动在.env文件中填入相对应的信息，否则无法启动，当然也可以运行RunWeb.bat来打开前端并通过前端进行设置环境变量）
+#### 3.待两个cmd窗口都打开并运行之后，可在浏览器进入8848端口，便能看到管理前端
+#### 4.在前端的侧边栏内填入相关信息，填入完毕即可刷新模型信息
+#### 5.在文件管理这一页中对你的文件进行管理。构建图谱将会构建全新的一个图谱，插入图谱则是会将文件中的信息插入至已有的图谱中。
+#### 6.在图谱管理页面，记得将生成的图谱文件夹或者上传之后新建的文件夹设置为环境变量
+#### 7.一切就绪，现在可以将LightRAG的后端地址填入你所使用的任何大模型问答/聊天前端。
+
+### 也许会有点小问题？
+由于我们才粗学浅，本项目不可避免地会有各种奇奇怪怪的bug，就连功能解耦都没有写好。所以遇到了bug请尽量告诉我们。
+
+### 关于我们
+关于我们自己......没什么好说的，大多是学生。所以如果有什么建议甚至是Pull Request，我们很欢迎。
+
+## Contribution
+
+Thank you to all our contributors!
+
+<a href="https://github.com/HKUDS/LightRAG/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=HKUDS/LightRAG" />
+</a>
+
+## 🌟Citation
+
+```python
+@article{guo2024lightrag,
+title={LightRAG: Simple and Fast Retrieval-Augmented Generation},
+author={Zirui Guo and Lianghao Xia and Yanhua Yu and Tu Ao and Chao Huang},
+year={2024},
+eprint={2410.05779},
+archivePrefix={arXiv},
+primaryClass={cs.IR}
+}
+```
+**Thank you for your interest in our work!**
