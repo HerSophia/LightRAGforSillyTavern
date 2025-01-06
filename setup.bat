@@ -35,7 +35,7 @@ REM 使用 get-pip.py 安装 pip
 
 REM 安装项目依赖
 echo [信息] 正在使用嵌入的 Python 安装项目依赖，请稍候...
-"%PYTHON_PATH%" -m pip install -r requirements.txt
+"%PYTHON_PATH%" -m pip install --no-deps -r requirements.txt
 if errorlevel 1 (
     echo [错误] 依赖安装失败，请检查 requirements.txt 文件或网络连接。
     pause
