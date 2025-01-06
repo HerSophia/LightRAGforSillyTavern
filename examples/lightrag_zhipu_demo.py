@@ -1,9 +1,9 @@
-import asyncio
 import os
-import inspect
 import logging
+
+
 from lightrag import LightRAG, QueryParam
-from lightrag.llm import ollama_model_complete, ollama_embedding
+from lightrag.llm import zhipu_complete, zhipu_embedding
 from lightrag.utils import EmbeddingFunc
 
 WORKING_DIR = "./dickens"
@@ -13,19 +13,21 @@ logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.INFO)
 if not os.path.exists(WORKING_DIR):
     os.mkdir(WORKING_DIR)
 
+api_key = os.environ.get("ZHIPUAI_API_KEY")
+if api_key is None:
+    raise Exception("Please set ZHIPU_API_KEY in your environment")
+
+
 rag = LightRAG(
     working_dir=WORKING_DIR,
-    llm_model_func=ollama_model_complete,
-    llm_model_name="gemma2:2b",
+    llm_model_func=zhipu_complete,
+    llm_model_name="glm-4-flashx",  # Using the most cost/performance balance model, but you can change it here.
     llm_model_max_async=4,
     llm_model_max_token_size=32768,
-    llm_model_kwargs={"host": "http://localhost:11434", "options": {"num_ctx": 32768}},
     embedding_func=EmbeddingFunc(
-        embedding_dim=768,
+        embedding_dim=2048,  # Zhipu embedding-3 dimension
         max_token_size=8192,
-        func=lambda texts: ollama_embedding(
-            texts, embed_model="nomic-embed-text", host="http://localhost:11434"
-        ),
+        func=lambda texts: zhipu_embedding(texts),
     ),
 )
 
@@ -51,20 +53,3 @@ print(
 print(
     rag.query("What are the top themes in this story?", param=QueryParam(mode="hybrid"))
 )
-
-# stream response
-resp = rag.query(
-    "What are the top themes in this story?",
-    param=QueryParam(mode="hybrid", stream=True),
-)
-
-
-async def print_stream(stream):
-    async for chunk in stream:
-        print(chunk, end="", flush=True)
-
-
-if inspect.isasyncgen(resp):
-    asyncio.run(print_stream(resp))
-else:
-    print(resp)

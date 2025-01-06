@@ -9,9 +9,9 @@ BATCH_SIZE_NODES = 500
 BATCH_SIZE_EDGES = 100
 
 # Neo4j connection credentials
-NEO4J_URI = ""
+NEO4J_URI = "bolt://localhost:7687"
 NEO4J_USERNAME = "neo4j"
-NEO4J_PASSWORD = ""
+NEO4J_PASSWORD = "your_password"
 
 
 def convert_xml_to_json(xml_path, output_path):
@@ -62,7 +62,7 @@ def main():
         e.displayName = node.id
     REMOVE e:Entity
     WITH e, node
-    CALL apoc.create.addLabels(e, [node.entity_type]) YIELD node AS labeledNode
+    CALL apoc.create.addLabels(e, [node.id]) YIELD node AS labeledNode
     RETURN count(*)
     """
 

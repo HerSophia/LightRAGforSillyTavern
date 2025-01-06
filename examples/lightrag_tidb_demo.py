@@ -1,26 +1,27 @@
-import sys
-import os
-from pathlib import Path
 import asyncio
-from lightrag import LightRAG, QueryParam
-from lightrag.llm import openai_complete_if_cache, openai_embedding
-from lightrag.utils import EmbeddingFunc
-import numpy as np
-from lightrag.kg.oracle_impl import OracleDB
+import os
 
-print(os.getcwd())
-script_directory = Path(__file__).resolve().parent.parent
-sys.path.append(os.path.abspath(script_directory))
+import numpy as np
+
+from lightrag import LightRAG, QueryParam
+from lightrag.kg.tidb_impl import TiDB
+from lightrag.llm import siliconcloud_embedding, openai_complete_if_cache
+from lightrag.utils import EmbeddingFunc
 
 WORKING_DIR = "./dickens"
 
-# We use OpenAI compatible API to call LLM on Oracle Cloud
-# More docs here https://github.com/jin38324/OCI_GenAI_access_gateway
-BASE_URL = "http://xxx.xxx.xxx.xxx:8088/v1/"
-APIKEY = "ocigenerativeai"
-CHATMODEL = "cohere.command-r-plus"
-EMBEDMODEL = "cohere.embed-multilingual-v3.0"
+# We use SiliconCloud API to call LLM on Oracle Cloud
+# More docs here https://docs.siliconflow.cn/introduction
+BASE_URL = "https://api.siliconflow.cn/v1/"
+APIKEY = ""
+CHATMODEL = ""
+EMBEDMODEL = ""
 
+TIDB_HOST = ""
+TIDB_PORT = ""
+TIDB_USER = ""
+TIDB_PASSWORD = ""
+TIDB_DATABASE = "lightrag"
 
 if not os.path.exists(WORKING_DIR):
     os.mkdir(WORKING_DIR)
@@ -41,11 +42,10 @@ async def llm_model_func(
 
 
 async def embedding_func(texts: list[str]) -> np.ndarray:
-    return await openai_embedding(
+    return await siliconcloud_embedding(
         texts,
-        model=EMBEDMODEL,
+        # model=EMBEDMODEL,
         api_key=APIKEY,
-        base_url=BASE_URL,
     )
 
 
@@ -62,28 +62,23 @@ async def main():
         embedding_dimension = await get_embedding_dim()
         print(f"Detected embedding dimension: {embedding_dimension}")
 
-        # Create Oracle DB connection
-        # The `config` parameter is the connection configuration of Oracle DB
-        # More docs here https://python-oracledb.readthedocs.io/en/latest/user_guide/connection_handling.html
-        # We storage data in unified tables, so we need to set a `workspace` parameter to specify which docs we want to store and query
-        # Below is an example of how to connect to Oracle Autonomous Database on Oracle Cloud
-        oracle_db = OracleDB(
+        # Create TiDB DB connection
+        tidb = TiDB(
             config={
-                "user": "username",
-                "password": "xxxxxxxxx",
-                "dsn": "xxxxxxx_medium",
-                "config_dir": "dir/path/to/oracle/config",
-                "wallet_location": "dir/path/to/oracle/wallet",
-                "wallet_password": "xxxxxxxxx",
+                "host": TIDB_HOST,
+                "port": TIDB_PORT,
+                "user": TIDB_USER,
+                "password": TIDB_PASSWORD,
+                "database": TIDB_DATABASE,
                 "workspace": "company",  # specify which docs you want to store and query
             }
         )
 
-        # Check if Oracle DB tables exist, if not, tables will be created
-        await oracle_db.check_tables()
+        # Check if TiDB DB tables exist, if not, tables will be created
+        await tidb.check_tables()
 
         # Initialize LightRAG
-        # We use Oracle DB as the KV/vector/graph storage
+        # We use TiDB DB as the KV/vector
         # You can add `addon_params={"example_number": 1, "language": "Simplfied Chinese"}` to control the prompt
         rag = LightRAG(
             enable_llm_cache=False,
@@ -95,17 +90,19 @@ async def main():
                 max_token_size=512,
                 func=embedding_func,
             ),
-            graph_storage="OracleGraphStorage",
-            kv_storage="OracleKVStorage",
-            vector_storage="OracleVectorDBStorage",
+            kv_storage="TiDBKVStorage",
+            vector_storage="TiDBVectorDBStorage",
+            graph_storage="TiDBGraphStorage",
         )
 
-        # Setthe KV/vector/graph storage's `db` property, so all operation will use same connection pool
-        rag.graph_storage_cls.db = oracle_db
-        rag.key_string_value_json_storage_cls.db = oracle_db
-        rag.vector_db_storage_cls.db = oracle_db
-        # add embedding_func for graph database, it's deleted in commit 5661d76860436f7bf5aef2e50d9ee4a59660146c
-        rag.chunk_entity_relation_graph.embedding_func = rag.embedding_func
+        if rag.llm_response_cache:
+            rag.llm_response_cache.db = tidb
+        rag.full_docs.db = tidb
+        rag.text_chunks.db = tidb
+        rag.entities_vdb.db = tidb
+        rag.relationships_vdb.db = tidb
+        rag.chunks_vdb.db = tidb
+        rag.chunk_entity_relation_graph.db = tidb
 
         # Extract and Insert into LightRAG storage
         with open("./dickens/demo.txt", "r", encoding="utf-8") as f:

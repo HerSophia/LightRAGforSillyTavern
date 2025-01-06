@@ -47,7 +47,9 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=4, max=10),
-    retry=retry_if_exception_type((RateLimitError, APIConnectionError, APITimeoutError)),
+    retry=retry_if_exception_type(
+        (RateLimitError, APIConnectionError, APITimeoutError)
+    ),
 )
 async def openai_complete_if_cache(
     model,
@@ -168,7 +170,9 @@ async def openai_compatible_complete_if_cache(
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=4, max=10),
-    retry=retry_if_exception_type((RateLimitError, APIConnectionError, APIConnectionError)),
+    retry=retry_if_exception_type(
+        (RateLimitError, APIConnectionError, APIConnectionError)
+    ),
 )
 async def azure_openai_complete_if_cache(
     model,
@@ -319,7 +323,9 @@ def initialize_hf_model(model_name):
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=4, max=10),
-    retry=retry_if_exception_type((RateLimitError, APIConnectionError, APITimeoutError)),
+    retry=retry_if_exception_type(
+        (RateLimitError, APIConnectionError, APITimeoutError)
+    ),
 )
 async def hf_model_if_cache(
     model,
@@ -386,7 +392,9 @@ async def hf_model_if_cache(
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=4, max=10),
-    retry=retry_if_exception_type((RateLimitError, APIConnectionError, APITimeoutError)),
+    retry=retry_if_exception_type(
+        (RateLimitError, APIConnectionError, APITimeoutError)
+    ),
 )
 async def ollama_model_if_cache(
     model,
@@ -504,7 +512,9 @@ def initialize_lmdeploy_pipeline(
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=4, max=10),
-    retry=retry_if_exception_type((RateLimitError, APIConnectionError, APITimeoutError)),
+    retry=retry_if_exception_type(
+        (RateLimitError, APIConnectionError, APITimeoutError)
+    ),
 )
 async def lmdeploy_model_if_cache(
     model,
@@ -778,7 +788,9 @@ async def lollms_model_complete(
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=4, max=10),
-    retry=retry_if_exception_type((RateLimitError, APIConnectionError, APITimeoutError)),
+    retry=retry_if_exception_type(
+        (RateLimitError, APIConnectionError, APITimeoutError)
+    ),
 )
 async def zhipu_complete_if_cache(
     prompt: Union[str, List[Dict[str, str]]],
@@ -908,7 +920,9 @@ async def zhipu_complete(
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=4, max=60),
-    retry=retry_if_exception_type((RateLimitError, APIConnectionError, APITimeoutError)),
+    retry=retry_if_exception_type(
+        (RateLimitError, APIConnectionError, APITimeoutError)
+    ),
 )
 async def zhipu_embedding(
     texts: list[str], model: str = "embedding-3", api_key: str = None, **kwargs
@@ -944,7 +958,9 @@ async def zhipu_embedding(
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=4, max=60),
-    retry=retry_if_exception_type((RateLimitError, APIConnectionError, APITimeoutError)),
+    retry=retry_if_exception_type(
+        (RateLimitError, APIConnectionError, APITimeoutError)
+    ),
 )
 async def openai_embedding(
     texts: list[str],
@@ -1025,7 +1041,9 @@ async def jina_embedding(
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=4, max=60),
-    retry=retry_if_exception_type((RateLimitError, APIConnectionError, APITimeoutError)),
+    retry=retry_if_exception_type(
+        (RateLimitError, APIConnectionError, APITimeoutError)
+    ),
 )
 async def nvidia_openai_embedding(
     texts: list[str],
@@ -1056,7 +1074,9 @@ async def nvidia_openai_embedding(
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=4, max=10),
-    retry=retry_if_exception_type((RateLimitError, APIConnectionError, APITimeoutError)),
+    retry=retry_if_exception_type(
+        (RateLimitError, APIConnectionError, APITimeoutError)
+    ),
 )
 async def azure_openai_embedding(
     texts: list[str],
@@ -1087,7 +1107,9 @@ async def azure_openai_embedding(
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=4, max=60),
-    retry=retry_if_exception_type((RateLimitError, APIConnectionError, APITimeoutError)),
+    retry=retry_if_exception_type(
+        (RateLimitError, APIConnectionError, APITimeoutError)
+    ),
 )
 async def siliconcloud_embedding(
     texts: list[str],

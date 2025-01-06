@@ -2,12 +2,12 @@ from fastapi import FastAPI, HTTPException, File, UploadFile
 from pydantic import BaseModel
 import os
 from lightrag import LightRAG, QueryParam
-from lightrag.llm import openai_complete_if_cache, openai_embedding
+from lightrag.llm import ollama_embedding, ollama_model_complete
 from lightrag.utils import EmbeddingFunc
-import numpy as np
 from typing import Optional
 import asyncio
 import nest_asyncio
+import aiofiles
 
 # Apply nest_asyncio to solve event loop issues
 nest_asyncio.apply()
@@ -15,68 +15,37 @@ nest_asyncio.apply()
 DEFAULT_RAG_DIR = "index_default"
 app = FastAPI(title="LightRAG API", description="API for RAG operations")
 
+DEFAULT_INPUT_FILE = "book.txt"
+INPUT_FILE = os.environ.get("INPUT_FILE", f"{DEFAULT_INPUT_FILE}")
+print(f"INPUT_FILE: {INPUT_FILE}")
+
 # Configure working directory
 WORKING_DIR = os.environ.get("RAG_DIR", f"{DEFAULT_RAG_DIR}")
 print(f"WORKING_DIR: {WORKING_DIR}")
-LLM_MODEL = os.environ.get("LLM_MODEL", "gpt-4o-mini")
-print(f"LLM_MODEL: {LLM_MODEL}")
-EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "text-embedding-3-large")
-print(f"EMBEDDING_MODEL: {EMBEDDING_MODEL}")
-EMBEDDING_MAX_TOKEN_SIZE = int(os.environ.get("EMBEDDING_MAX_TOKEN_SIZE", 8192))
-print(f"EMBEDDING_MAX_TOKEN_SIZE: {EMBEDDING_MAX_TOKEN_SIZE}")
+
 
 if not os.path.exists(WORKING_DIR):
     os.mkdir(WORKING_DIR)
 
 
-# LLM model function
-
-
-async def llm_model_func(
-    prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs
-) -> str:
-    return await openai_complete_if_cache(
-        LLM_MODEL,
-        prompt,
-        system_prompt=system_prompt,
-        history_messages=history_messages,
-        **kwargs,
-    )
-
-
-# Embedding function
-
-
-async def embedding_func(texts: list[str]) -> np.ndarray:
-    return await openai_embedding(
-        texts,
-        model=EMBEDDING_MODEL,
-    )
-
-
-async def get_embedding_dim():
-    test_text = ["This is a test sentence."]
-    embedding = await embedding_func(test_text)
-    embedding_dim = embedding.shape[1]
-    print(f"{embedding_dim=}")
-    return embedding_dim
-
-
-# Initialize RAG instance
 rag = LightRAG(
     working_dir=WORKING_DIR,
-    llm_model_func=llm_model_func,
+    llm_model_func=ollama_model_complete,
+    llm_model_name="gemma2:9b",
+    llm_model_max_async=4,
+    llm_model_max_token_size=8192,
+    llm_model_kwargs={"host": "http://localhost:11434", "options": {"num_ctx": 8192}},
     embedding_func=EmbeddingFunc(
-        embedding_dim=asyncio.run(get_embedding_dim()),
-        max_token_size=EMBEDDING_MAX_TOKEN_SIZE,
-        func=embedding_func,
+        embedding_dim=768,
+        max_token_size=8192,
+        func=lambda texts: ollama_embedding(
+            texts, embed_model="nomic-embed-text", host="http://localhost:11434"
+        ),
     ),
 )
 
 
 # Data models
-
-
 class QueryRequest(BaseModel):
     query: str
     mode: str = "hybrid"
@@ -94,8 +63,6 @@ class Response(BaseModel):
 
 
 # API routes
-
-
 @app.post("/query", response_model=Response)
 async def query_endpoint(request: QueryRequest):
     try:
@@ -114,6 +81,7 @@ async def query_endpoint(request: QueryRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# insert by text
 @app.post("/insert", response_model=Response)
 async def insert_endpoint(request: InsertRequest):
     try:
@@ -124,6 +92,7 @@ async def insert_endpoint(request: InsertRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# insert by file in payload
 @app.post("/insert_file", response_model=Response)
 async def insert_file(file: UploadFile = File(...)):
     try:
@@ -141,6 +110,27 @@ async def insert_file(file: UploadFile = File(...)):
         return Response(
             status="success",
             message=f"File content from {file.filename} inserted successfully",
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# insert by local default file
+@app.post("/insert_default_file", response_model=Response)
+@app.get("/insert_default_file", response_model=Response)
+async def insert_default_file():
+    try:
+        # Read file content from book.txt
+        async with aiofiles.open(INPUT_FILE, "r", encoding="utf-8") as file:
+            content = await file.read()
+        print(f"read input file {INPUT_FILE} successfully")
+        # Insert file content
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, lambda: rag.insert(content))
+
+        return Response(
+            status="success",
+            message=f"File content from {INPUT_FILE} inserted successfully",
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
