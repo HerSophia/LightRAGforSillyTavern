@@ -1006,15 +1006,43 @@ async def _get_edge_data(
     text_chunks_db: BaseKVStorage[TextChunkSchema],
     query_param: QueryParam,
 ):
-    results = await relationships_vdb.query(keywords, top_k=query_param.top_k)
+    load_dotenv(override=True)
+    print("keywords:", keywords)
+    RAG_DIR = os.getenv("RAG_DIR", "")
+    vdb_relationships_path = os.path.join(RAG_DIR, "vdb_relationships.json")
 
+    results = await relationships_vdb.query(keywords, top_k=query_param.top_k)
+    # 查询 relationships_vdb 获取初始结果
+    # print("Initial results:", results)
+
+    # 加载 vdb_relationships.json 的数据
+    vdb_relationships = load_json(vdb_relationships_path)
+    vdb_relationships_data = vdb_relationships["data"]
+    # print("vdb_relationships_data:",vdb_relationships_data)
+    # print("\n\n\n\n\n")
+    # 查询 vdb_relationships 并头插法插入 results
+    for keyword in keywords:
+        for relationship in vdb_relationships_data:
+            src_similarity, src_bool = calculate_similarity(keyword, relationship["src_id"])
+            tgt_similarity, tgt_bool = calculate_similarity(keyword, relationship["tgt_id"])
+            if src_bool or tgt_bool:
+                if src_bool:
+                    relationship["__metrics__"] = src_similarity
+                else:
+                    relationship["__metrics__"] = tgt_similarity
+                results.insert(0, relationship)
+
+    # 根据 keywords 重新排序 results
+    results = reorder_results(results, keywords)
+
+    # print("Reordered results:", results)
+    # print(results)
     if not len(results):
         return "", "", ""
 
     edge_datas = await asyncio.gather(
         *[knowledge_graph_inst.get_edge(r["src_id"], r["tgt_id"]) for r in results]
     )
-
     if not all([n is not None for n in edge_datas]):
         logger.warning("Some edges are missing, maybe the storage is damaged")
     edge_degree = await asyncio.gather(
