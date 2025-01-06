@@ -639,7 +639,7 @@ async def openai_compatible_complete(
     if keyword_extraction:
         kwargs["response_format"] = "json"
     model_name = kwargs["hashing_kv"].global_config["llm_model_name"]
-    return await openai_complete_if_cache(
+    return await openai_compatible_complete_if_cache(
         model_name,
         prompt,
         system_prompt=system_prompt,
