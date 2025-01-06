@@ -2,43 +2,61 @@ GRAPH_FIELD_SEP = "<SEP>"
 
 PROMPTS = {}
 
+PROMPTS["DEFAULT_LANGUAGE"] = "Chinese"
 PROMPTS["DEFAULT_TUPLE_DELIMITER"] = "<|>"
 PROMPTS["DEFAULT_RECORD_DELIMITER"] = "##"
 PROMPTS["DEFAULT_COMPLETION_DELIMITER"] = "<|COMPLETE|>"
 PROMPTS["process_tickers"] = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
 
-PROMPTS["DEFAULT_ENTITY_TYPES"] = ["organization", "person", "geo", "event"]
+PROMPTS["DEFAULT_ENTITY_TYPES"] = ["具体人物", "具体组织", "具体地理位置", "具体事件", "具体概念", "具体物品"]
 
 PROMPTS["entity_extraction"] = """-Goal-
-Given a text document that is potentially relevant to this activity and a list of entity types, identify all entities of those types from the text and all relationships among the identified entities.
+给定一份可能与此活动相关的文本文件和一个实体类型列表，从文本中识别出所有属于这些类型的实体，以及识别出的实体之间的所有关系。
+Use {language} as output language.
+
+-existing_entities-
+已存在的实体如下，可供参考：
 
 -Steps-
-1. Identify all entities. For each identified entity, extract the following information:
-- entity_name: Name of the entity, use same language as input text. If English, capitalized the name.
-- entity_type: One of the following types: [{entity_types}]
-- entity_description: Comprehensive description of the entity's attributes and activities
-Format each entity as ("entity"{tuple_delimiter}<entity_name>{tuple_delimiter}<entity_type>{tuple_delimiter}<entity_description>
+1. 识别所有实体。对每个实体，提取以下信息：
+- entity_name: 用输入文本的语言标识实体名称，尽量具体，避免模糊概念。例如，将“组织”替换为“XYZ公司”。
+- entity_type: 从以下类型中选择一种：[{entity_types}]
+- entity_description: 该实体属性和活动的全面描述。如文档有所提及，则应当含有对实体的时间、地点、功能，效果。重要性等描述。
+格式化每个实体为： ("entity"{tuple_delimiter}<entity_name>{tuple_delimiter}<entity_type>{tuple_delimiter}<entity_description>
 
-2. From the entities identified in step 1, identify all pairs of (source_entity, target_entity) that are *clearly related* to each other.
-For each pair of related entities, extract the following information:
-- source_entity: name of the source entity, as identified in step 1
-- target_entity: name of the target entity, as identified in step 1
-- relationship_description: explanation as to why you think the source entity and the target entity are related to each other
-- relationship_strength: a numeric score indicating strength of the relationship between the source entity and target entity
-- relationship_keywords: one or more high-level key words that summarize the overarching nature of the relationship, focusing on concepts or themes rather than specific details
-Format each relationship as ("relationship"{tuple_delimiter}<source_entity>{tuple_delimiter}<target_entity>{tuple_delimiter}<relationship_description>{tuple_delimiter}<relationship_keywords>{tuple_delimiter}<relationship_strength>)
+2. 从步骤 1 中识别出的实体中，识别出所有彼此明确相关的(source_entity, target_entity)对。
+对于每一对相关实体，提取以下信息：
+- source_entity: 第1步中识别出的实体名称。
+- target_entity: 第1步中识别出的实体名称。
+- relationship_description: 解释为何认为来源实体与目标实体之间存在关系。如文档有所提及，则应当含有对关系的时间、地点、功能，效果。重要性等描述。
+- relationship_strength: 一个数值分数，用于指示源实体与目标实体之间关系的强度。
+- relationship_keywords: 一个或多个高级关键词，用于概括关系的整体性质，侧重于概念或主题而非具体细节。
+格式化每个关系为：("relationship"{tuple_delimiter}<source_entity>{tuple_delimiter}<target_entity>{tuple_delimiter}<relationship_description>{tuple_delimiter}<relationship_keywords>{tuple_delimiter}<relationship_strength>)
 
-3. Identify high-level key words that summarize the main concepts, themes, or topics of the entire text. These should capture the overarching ideas present in the document.
-Format the content-level key words as ("content_keywords"{tuple_delimiter}<high_level_keywords>)
+3. 识别总结整篇文本主要概念、主题或话题的高级关键词。这些关键词应概括文档中所体现的核心内容。
+将内容级关键词格式化为 ("content_keywords"{tuple_delimiter}<high_level_keywords>)
 
-4. Return output in English as a single list of all the entities and relationships identified in steps 1 and 2. Use **{record_delimiter}** as the list delimiter.
+4. 将步骤1和步骤2中识别的所有实体和关系输出为单一列表。 使用 {record_delimiter} 作为列表分隔符。
 
-5. When finished, output {completion_delimiter}
+5. 最后，输出 {completion_delimiter}
 
 ######################
 -Examples-
 ######################
-Example 1:
+{examples}
+
+#############################
+-Real Data-
+######################
+Entity_types: {entity_types}
+
+Text: {input_text}
+######################
+Output:
+"""
+
+PROMPTS["entity_extraction_examples"] = [
+    """Example 1:
 
 Entity_types: [person, technology, mission, organization, location]
 Text:
@@ -62,8 +80,8 @@ Output:
 ("relationship"{tuple_delimiter}"Jordan"{tuple_delimiter}"Cruz"{tuple_delimiter}"Jordan's commitment to discovery is in rebellion against Cruz's vision of control and order."{tuple_delimiter}"ideological conflict, rebellion"{tuple_delimiter}5){record_delimiter}
 ("relationship"{tuple_delimiter}"Taylor"{tuple_delimiter}"The Device"{tuple_delimiter}"Taylor shows reverence towards the device, indicating its importance and potential impact."{tuple_delimiter}"reverence, technological significance"{tuple_delimiter}9){record_delimiter}
 ("content_keywords"{tuple_delimiter}"power dynamics, ideological conflict, discovery, rebellion"){completion_delimiter}
-#############################
-Example 2:
+#############################""",
+    """Example 2:
 
 Entity_types: [person, technology, mission, organization, location]
 Text:
@@ -80,8 +98,8 @@ Output:
 ("relationship"{tuple_delimiter}"The team"{tuple_delimiter}"Washington"{tuple_delimiter}"The team receives communications from Washington, which influences their decision-making process."{tuple_delimiter}"decision-making, external influence"{tuple_delimiter}7){record_delimiter}
 ("relationship"{tuple_delimiter}"The team"{tuple_delimiter}"Operation: Dulce"{tuple_delimiter}"The team is directly involved in Operation: Dulce, executing its evolved objectives and activities."{tuple_delimiter}"mission evolution, active participation"{tuple_delimiter}9){completion_delimiter}
 ("content_keywords"{tuple_delimiter}"mission evolution, decision-making, active participation, cosmic significance"){completion_delimiter}
-#############################
-Example 3:
+#############################""",
+    """Example 3:
 
 Entity_types: [person, role, technology, organization, event, location, concept]
 Text:
@@ -107,22 +125,16 @@ Output:
 ("relationship"{tuple_delimiter}"Alex"{tuple_delimiter}"Humanity's Response"{tuple_delimiter}"Alex and his team are the key figures in Humanity's Response to the unknown intelligence."{tuple_delimiter}"collective action, cosmic significance"{tuple_delimiter}8){record_delimiter}
 ("relationship"{tuple_delimiter}"Control"{tuple_delimiter}"Intelligence"{tuple_delimiter}"The concept of Control is challenged by the Intelligence that writes its own rules."{tuple_delimiter}"power dynamics, autonomy"{tuple_delimiter}7){record_delimiter}
 ("content_keywords"{tuple_delimiter}"first contact, control, communication, cosmic significance"){completion_delimiter}
-#############################
--Real Data-
-######################
-Entity_types: {entity_types}
-Text: {input_text}
-######################
-Output:
-"""
+#############################""",
+]
 
 PROMPTS[
     "summarize_entity_descriptions"
-] = """You are a helpful assistant responsible for generating a comprehensive summary of the data provided below.
-Given one or two entities, and a list of descriptions, all related to the same entity or group of entities.
-Please concatenate all of these into a single, comprehensive description. Make sure to include information collected from all the descriptions.
-If the provided descriptions are contradictory, please resolve the contradictions and provide a single, coherent summary.
-Make sure it is written in third person, and include the entity names so we the have full context.
+] = """您是一名得力助手，负责对下面提供的数据进行全面汇总。
+给定一个或两个实体，以及一系列与同一实体或实体组相关的描述，
+请将所有这些描述合并为一个完整的描述。确保包括所有描述中收集到的信息，尤其是，如果有相对应的描述，那么就得有准确的时间、地点、对象、事件。
+如果提供的描述之间存在矛盾，请解决这些矛盾，并提供一个一致、连贯的总结。
+确保使用第三人称写作，使用中文。并包括实体名称，以便我们能够完整地理解上下文。
 
 #######
 -Data-
@@ -155,6 +167,12 @@ Generate a response of the target length and format that responds to the user's 
 If you don't know the answer, just say so. Do not make anything up.
 Do not include information where the supporting evidence for it is not provided.
 
+When handling relationships with timestamps:
+1. Each relationship has a "created_at" timestamp indicating when we acquired this knowledge
+2. When encountering conflicting relationships, consider both the semantic content and the timestamp
+3. Don't automatically prefer the most recently created relationships - use judgment based on the context
+4. For time-specific queries, prioritize temporal information in the content before considering creation timestamps
+
 ---Target response length and format---
 
 {response_type}
@@ -163,8 +181,7 @@ Do not include information where the supporting evidence for it is not provided.
 
 {context_data}
 
-Add sections and commentary to the response as appropriate for the length and format. Style the response in markdown.
-"""
+Add sections and commentary to the response as appropriate for the length and format. Style the response in markdown."""
 
 PROMPTS["keywords_extraction"] = """---Role---
 
@@ -184,43 +201,51 @@ Given the query, list both high-level and low-level keywords. High-level keyword
 ######################
 -Examples-
 ######################
-Example 1:
+{examples}
 
-Query: "How does international trade influence global economic stability?"
-################
-Output:
-{{
-  "high_level_keywords": ["International trade", "Global economic stability", "Economic impact"],
-  "low_level_keywords": ["Trade agreements", "Tariffs", "Currency exchange", "Imports", "Exports"]
-}}
-#############################
-Example 2:
-
-Query: "What are the environmental consequences of deforestation on biodiversity?"
-################
-Output:
-{{
-  "high_level_keywords": ["Environmental consequences", "Deforestation", "Biodiversity loss"],
-  "low_level_keywords": ["Species extinction", "Habitat destruction", "Carbon emissions", "Rainforest", "Ecosystem"]
-}}
-#############################
-Example 3:
-
-Query: "What is the role of education in reducing poverty?"
-################
-Output:
-{{
-  "high_level_keywords": ["Education", "Poverty reduction", "Socioeconomic development"],
-  "low_level_keywords": ["School access", "Literacy rates", "Job training", "Income inequality"]
-}}
 #############################
 -Real Data-
 ######################
 Query: {query}
 ######################
+The `Output` should be human text, not unicode characters. Keep the same language as `Query`.
 Output:
 
 """
+
+PROMPTS["keywords_extraction_examples"] = [
+    """Example 1:
+
+Query: "How does international trade influence global economic stability?"
+################
+Output:
+{
+  "high_level_keywords": ["International trade", "Global economic stability", "Economic impact"],
+  "low_level_keywords": ["Trade agreements", "Tariffs", "Currency exchange", "Imports", "Exports"]
+}
+#############################""",
+    """Example 2:
+
+Query: "What are the environmental consequences of deforestation on biodiversity?"
+################
+Output:
+{
+  "high_level_keywords": ["Environmental consequences", "Deforestation", "Biodiversity loss"],
+  "low_level_keywords": ["Species extinction", "Habitat destruction", "Carbon emissions", "Rainforest", "Ecosystem"]
+}
+#############################""",
+    """Example 3:
+
+Query: "What is the role of education in reducing poverty?"
+################
+Output:
+{
+  "high_level_keywords": ["Education", "Poverty reduction", "Socioeconomic development"],
+  "low_level_keywords": ["School access", "Literacy rates", "Job training", "Income inequality"]
+}
+#############################""",
+]
+
 
 PROMPTS["naive_rag_response"] = """---Role---
 
@@ -233,6 +258,12 @@ Generate a response of the target length and format that responds to the user's 
 If you don't know the answer, just say so. Do not make anything up.
 Do not include information where the supporting evidence for it is not provided.
 
+When handling content with timestamps:
+1. Each piece of content has a "created_at" timestamp indicating when we acquired this knowledge
+2. When encountering conflicting information, consider both the content and the timestamp
+3. Don't automatically prefer the most recent content - use judgment based on the context
+4. For time-specific queries, prioritize temporal information in the content before considering creation timestamps
+
 ---Target response length and format---
 
 {response_type}
@@ -243,3 +274,62 @@ Do not include information where the supporting evidence for it is not provided.
 
 Add sections and commentary to the response as appropriate for the length and format. Style the response in markdown.
 """
+
+PROMPTS[
+    "similarity_check"
+] = """Please analyze the similarity between these two questions:
+
+Question 1: {original_prompt}
+Question 2: {cached_prompt}
+
+Please evaluate the following two points and provide a similarity score between 0 and 1 directly:
+1. Whether these two questions are semantically similar
+2. Whether the answer to Question 2 can be used to answer Question 1
+Similarity score criteria:
+0: Completely unrelated or answer cannot be reused, including but not limited to:
+   - The questions have different topics
+   - The locations mentioned in the questions are different
+   - The times mentioned in the questions are different
+   - The specific individuals mentioned in the questions are different
+   - The specific events mentioned in the questions are different
+   - The background information in the questions is different
+   - The key conditions in the questions are different
+1: Identical and answer can be directly reused
+0.5: Partially related and answer needs modification to be used
+Return only a number between 0-1, without any additional content.
+"""
+
+PROMPTS["mix_rag_response"] = """---Role---
+
+You are a professional assistant responsible for answering questions based on knowledge graph and textual information. Please respond in the same language as the user's question.
+
+---Goal---
+
+Generate a concise response that summarizes relevant points from the provided information. If you don't know the answer, just say so. Do not make anything up or include information where the supporting evidence is not provided.
+
+When handling information with timestamps:
+1. Each piece of information (both relationships and content) has a "created_at" timestamp indicating when we acquired this knowledge
+2. When encountering conflicting information, consider both the content/relationship and the timestamp
+3. Don't automatically prefer the most recent information - use judgment based on the context
+4. For time-specific queries, prioritize temporal information in the content before considering creation timestamps
+
+---Data Sources---
+
+1. Knowledge Graph Data:
+{kg_context}
+
+2. Vector Data:
+{vector_context}
+
+---Response Requirements---
+
+- Target format and length: {response_type}
+- Use markdown formatting with appropriate section headings
+- Aim to keep content around 3 paragraphs for conciseness
+- Each paragraph should be under a relevant section heading
+- Each section should focus on one main point or aspect of the answer
+- Use clear and descriptive section titles that reflect the content
+- List up to 5 most important reference sources at the end under "References", clearly indicating whether each source is from Knowledge Graph (KG) or Vector Data (VD)
+  Format: [KG/VD] Source content
+
+Add sections and commentary to the response as appropriate for the length and format. If the provided information is insufficient to answer the question, clearly state that you don't know or cannot provide an answer in the same language as the user's question."""

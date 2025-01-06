@@ -33,7 +33,7 @@ if not os.path.exists(WORKING_DIR):
 
 
 async def llm_model_func(
-    prompt, system_prompt=None, history_messages=[], **kwargs
+    prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs
 ) -> str:
     return await openai_complete_if_cache(
         LLM_MODEL,
@@ -145,9 +145,6 @@ async def insert_file(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-async def test_funcs():
-    result = await llm_model_func("How are you?")
-    print("llm_model_func: ", result)
 
 @app.get("/health")
 async def health_check():
@@ -156,8 +153,6 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-
-    test_funcs()
 
     uvicorn.run(app, host="0.0.0.0", port=8020)
 

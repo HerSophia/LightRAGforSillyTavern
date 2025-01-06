@@ -21,9 +21,10 @@ This repository hosts the code of LightRAG. The structure of this code is based 
 #### 1.将响应格式写为OpenAI标准响应格式，并且支持Prefill
 #### 2.多文件的构建与插入图谱
 #### 3.热切换模型，自动填入模型名称与Max_tokens
-#### 4.更灵活的上下文处理策略（有待完善，已经在代码里写好）
-#### 5.支持来自问答/聊天系统的Prompt，其将与RAG自带的Prompt进行结合并输出至LLM
-#### 6.简单但全面的前端，方便管理RAG系统：文档上传，图谱管理
+#### 4.召回率保证：使用一个小trick保证与关键词高度相关的实体和联系的信息作为Prompt的一部分，使其不容易被海量信息挤占
+#### 5.增量检索：已存在于向量库中的实体名字/已存在于完成提取的chunk中的实体名字，将作为Prompt的一部分供大模型进行参考，使得大模型能够更有效地提取实体。
+#### 6.支持来自问答/聊天系统的Prompt，其将与RAG自带的Prompt进行结合并输出至LLM
+#### 7.简单但全面的前端，方便管理RAG系统：文档上传，图谱管理
 
 ### 前端一览
 ![image.png](https://s2.loli.net/2024/12/18/XDjilpqvQBruVtE.png)

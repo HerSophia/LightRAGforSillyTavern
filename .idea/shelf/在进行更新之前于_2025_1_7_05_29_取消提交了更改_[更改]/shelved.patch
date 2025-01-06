@@ -1,0 +1,32 @@
+Index: python/Scripts/jp.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>#!H:\\LightRAG for Sillytavern\\LightRAG-for-OpenAI-Standard-Frontend\\python\\python.exe\r\n\r\nimport sys\r\nimport json\r\nimport argparse\r\nfrom pprint import pformat\r\n\r\nimport jmespath\r\nfrom jmespath import exceptions\r\n\r\n\r\ndef main():\r\n    parser = argparse.ArgumentParser()\r\n    parser.add_argument('expression')\r\n    parser.add_argument('-f', '--filename',\r\n                        help=('The filename containing the input data.  '\r\n                              'If a filename is not given then data is '\r\n                              'read from stdin.'))\r\n    parser.add_argument('--ast', action='store_true',\r\n                        help=('Pretty print the AST, do not search the data.'))\r\n    args = parser.parse_args()\r\n    expression = args.expression\r\n    if args.ast:\r\n        # Only print the AST\r\n        expression = jmespath.compile(args.expression)\r\n        sys.stdout.write(pformat(expression.parsed))\r\n        sys.stdout.write('\\n')\r\n        return 0\r\n    if args.filename:\r\n        with open(args.filename, 'r') as f:\r\n            data = json.load(f)\r\n    else:\r\n        data = sys.stdin.read()\r\n        data = json.loads(data)\r\n    try:\r\n        sys.stdout.write(json.dumps(\r\n            jmespath.search(expression, data), indent=4, ensure_ascii=False))\r\n        sys.stdout.write('\\n')\r\n    except exceptions.ArityError as e:\r\n        sys.stderr.write(\"invalid-arity: %s\\n\" % e)\r\n        return 1\r\n    except exceptions.JMESPathTypeError as e:\r\n        sys.stderr.write(\"invalid-type: %s\\n\" % e)\r\n        return 1\r\n    except exceptions.UnknownFunctionError as e:\r\n        sys.stderr.write(\"unknown-function: %s\\n\" % e)\r\n        return 1\r\n    except exceptions.ParseError as e:\r\n        sys.stderr.write(\"syntax-error: %s\\n\" % e)\r\n        return 1\r\n\r\n\r\nif __name__ == '__main__':\r\n    sys.exit(main())\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/python/Scripts/jp.py b/python/Scripts/jp.py
+--- a/python/Scripts/jp.py	(revision a8d0c1c0ffc792082b8ef5f069ac8e18f206ea2f)
++++ b/python/Scripts/jp.py	(date 1735578338023)
+@@ -1,4 +1,4 @@
+-#!H:\LightRAG for Sillytavern\LightRAG-for-OpenAI-Standard-Frontend\python\python.exe
++#!H:\LightRAGforSillyTavern\python\python.exe
+ 
+ import sys
+ import json
+Index: python/Scripts/numba
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>#!H:\\LightRAG for Sillytavern\\LightRAG-for-OpenAI-Standard-Frontend\\python\\python.exe\r\n# -*- coding: UTF-8 -*-\r\nfrom __future__ import print_function, division, absolute_import\r\n\r\nfrom numba.misc.numba_entry import main\r\n\r\nif __name__ == \"__main__\":\r\n    main()\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/python/Scripts/numba b/python/Scripts/numba
+--- a/python/Scripts/numba	(revision a8d0c1c0ffc792082b8ef5f069ac8e18f206ea2f)
++++ b/python/Scripts/numba	(date 1735578355978)
+@@ -1,4 +1,4 @@
+-#!H:\LightRAG for Sillytavern\LightRAG-for-OpenAI-Standard-Frontend\python\python.exe
++#!H:\LightRAGforSillyTavern\python\python.exe
+ # -*- coding: UTF-8 -*-
+ from __future__ import print_function, division, absolute_import
+ 

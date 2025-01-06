@@ -1,0 +1,43 @@
+Index: setup.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import setuptools\r\nfrom pathlib import Path\r\n\r\n\r\n# Reading the long description from README.md\r\ndef read_long_description():\r\n    try:\r\n        return Path(\"README.md\").read_text(encoding=\"utf-8\")\r\n    except FileNotFoundError:\r\n        return \"A description of LightRAG is currently unavailable.\"\r\n\r\n\r\n# Retrieving metadata from __init__.py\r\ndef retrieve_metadata():\r\n    vars2find = [\"__author__\", \"__version__\", \"__url__\"]\r\n    vars2readme = {}\r\n    try:\r\n        with open(\"./lightrag/__init__.py\") as f:\r\n            for line in f.readlines():\r\n                for v in vars2find:\r\n                    if line.startswith(v):\r\n                        line = (\r\n                            line.replace(\" \", \"\")\r\n                            .replace('\"', \"\")\r\n                            .replace(\"'\", \"\")\r\n                            .strip()\r\n                        )\r\n                        vars2readme[v] = line.split(\"=\")[1]\r\n    except FileNotFoundError:\r\n        raise FileNotFoundError(\"Metadata file './lightrag/__init__.py' not found.\")\r\n\r\n    # Checking if all required variables are found\r\n    missing_vars = [v for v in vars2find if v not in vars2readme]\r\n    if missing_vars:\r\n        raise ValueError(\r\n            f\"Missing required metadata variables in __init__.py: {missing_vars}\"\r\n        )\r\n\r\n    return vars2readme\r\n\r\n\r\n# Reading dependencies from requirements.txt\r\ndef read_requirements():\r\n    deps = []\r\n    try:\r\n        with open(\"./requirements.txt\") as f:\r\n            deps = [line.strip() for line in f if line.strip()]\r\n    except FileNotFoundError:\r\n        print(\r\n            \"Warning: 'requirements.txt' not found. No dependencies will be installed.\"\r\n        )\r\n    return deps\r\n\r\n\r\nmetadata = retrieve_metadata()\r\nlong_description = read_long_description()\r\nrequirements = read_requirements()\r\n\r\nsetuptools.setup(\r\n    name=\"lightrag-hku\",\r\n    url=metadata[\"__url__\"],\r\n    version=metadata[\"__version__\"],\r\n    author=metadata[\"__author__\"],\r\n    description=\"LightRAG: Simple and Fast Retrieval-Augmented Generation\",\r\n    long_description=long_description,\r\n    long_description_content_type=\"text/markdown\",\r\n    packages=setuptools.find_packages(\r\n        exclude=(\"tests*\", \"docs*\")\r\n    ),  # Automatically find packages\r\n    classifiers=[\r\n        \"Development Status :: 4 - Beta\",\r\n        \"Programming Language :: Python :: 3\",\r\n        \"License :: OSI Approved :: MIT License\",\r\n        \"Operating System :: OS Independent\",\r\n        \"Intended Audience :: Developers\",\r\n        \"Topic :: Software Development :: Libraries :: Python Modules\",\r\n    ],\r\n    python_requires=\">=3.9\",\r\n    install_requires=requirements,\r\n    include_package_data=True,  # Includes non-code files from MANIFEST.in\r\n    project_urls={  # Additional project metadata\r\n        \"Documentation\": metadata.get(\"__url__\", \"\"),\r\n        \"Source\": metadata.get(\"__url__\", \"\"),\r\n        \"Tracker\": f\"{metadata.get('__url__', '')}/issues\"\r\n        if metadata.get(\"__url__\")\r\n        else \"\",\r\n    },\r\n)\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/setup.py b/setup.py
+--- a/setup.py	(revision a8d0c1c0ffc792082b8ef5f069ac8e18f206ea2f)
++++ b/setup.py	(date 1736199598920)
+@@ -52,6 +52,16 @@
+     return deps
+ 
+ 
++def read_api_requirements():
++    api_deps = []
++    try:
++        with open("./lightrag/api/requirements.txt") as f:
++            api_deps = [line.strip() for line in f if line.strip()]
++    except FileNotFoundError:
++        print("Warning: API requirements.txt not found.")
++    return api_deps
++
++
+ metadata = retrieve_metadata()
+ long_description = read_long_description()
+ requirements = read_requirements()
+@@ -85,4 +95,15 @@
+         if metadata.get("__url__")
+         else "",
+     },
++    extras_require={
++        "api": read_api_requirements(),  # API requirements as optional
++    },
++    entry_points={
++        "console_scripts": [
++            "lollms-lightrag-server=lightrag.api.lollms_lightrag_server:main [api]",
++            "ollama-lightrag-server=lightrag.api.ollama_lightrag_server:main [api]",
++            "openai-lightrag-server=lightrag.api.openai_lightrag_server:main [api]",
++            "azure-openai-lightrag-server=lightrag.api.azure_openai_lightrag_server:main [api]",
++        ],
++    },
+ )

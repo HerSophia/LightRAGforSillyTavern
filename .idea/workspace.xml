@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="e03adfda-698c-498e-a42b-2cbeceeb72fd" name="更改" comment="">
+      <change beforePath="$PROJECT_DIR$/python/Scripts/accelerate-config.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/accelerate-config.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/accelerate-estimate-memory.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/accelerate-estimate-memory.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/accelerate-launch.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/accelerate-launch.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/accelerate-merge-weights.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/accelerate-merge-weights.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/accelerate.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/accelerate.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/convert-caffe2-to-onnx.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/convert-caffe2-to-onnx.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/convert-onnx-to-caffe2.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/convert-onnx-to-caffe2.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/distro.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/distro.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/dotenv.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/dotenv.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/fastapi.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/fastapi.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/fonttools.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/fonttools.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/huggingface-cli.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/huggingface-cli.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/ipython.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/ipython.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/ipython3.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/ipython3.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/jp.py" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/jp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/normalizer.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/normalizer.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/numba" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/numba" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/openai.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/openai.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/pip.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/pip.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/pip3.11.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/pip3.11.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/pip3.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/pip3.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/pyftmerge.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/pyftmerge.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/pyftsubset.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/pyftsubset.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/pygmentize.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/pygmentize.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/torchfrtrace.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/torchfrtrace.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/torchrun.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/torchrun.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/tqdm.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/tqdm.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/transformers-cli.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/transformers-cli.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/ttx.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/ttx.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/uvicorn.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/uvicorn.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/Scripts/wheel.exe" beforeDir="false" afterPath="$PROJECT_DIR$/python/Scripts/wheel.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python/share/man/man1/ipython.1" beforeDir="false" afterPath="$PROJECT_DIR$/python/share/man/man1/ipython.1" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;HerSophia&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/HerSophia/LightRAGforSillyTavern.git&quot;,
+    &quot;accountId&quot;: &quot;e26397ec-aede-4986-9c27-4db4860a536f&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
+  <component name="ProjectId" id="2qP798M3c9y7TWTCVyHa4lk3c3G" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;
+  }
+}</component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-fb887030ada0-aa17d162503b-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-243.21565.199" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="默认任务">
+      <changelist id="e03adfda-698c-498e-a42b-2cbeceeb72fd" name="更改" comment="" />
+      <created>1734552202574</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1734552202574</updated>
+    </task>
+    <servers />
+  </component>
+</project>
