@@ -1,6 +1,9 @@
 import asyncio
 import json
 import re
+import os
+from dotenv import load_dotenv
+from Levenshtein import ratio
 from tqdm.asyncio import tqdm as tqdm_async
 from typing import Union
 from collections import Counter, defaultdict
@@ -496,6 +499,8 @@ async def kg_query(
     # LLM generate keywords
     kw_prompt_temp = PROMPTS["keywords_extraction"]
     kw_prompt = kw_prompt_temp.format(query=query, examples=examples, language=language)
+    if system_prompt:
+        kw_prompt = system_prompt + f"\n" + kw_prompt
     result = await use_model_func(kw_prompt, keyword_extraction=True)
     logger.info("kw_prompt result:")
     print(result)
@@ -684,18 +689,72 @@ async def _build_query_context(
 """
 
 
+
+# 计算词语之间的相似度
+def calculate_similarity(keyword, target):
+    # 计算两个词语的相似度，返回归一化值（0~1）
+    similarity = ratio(keyword, target)
+    return similarity, similarity >= 0.8  # 返回相似度和是否高度相关
+
+# 从文件加载 JSON 数据
+def load_json(path):
+    if not os.path.exists(path):
+        print(f"path error:{path}")
+        return []
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+# 修改 _get_node_data 函数
 async def _get_node_data(
-    query,
+    query,  # 输入为字符串
     knowledge_graph_inst: BaseGraphStorage,
     entities_vdb: BaseVectorStorage,
     text_chunks_db: BaseKVStorage[TextChunkSchema],
     query_param: QueryParam,
 ):
-    # get similar entities
+    load_dotenv(override=True)
+    print("Original query string:", query)
+
+
+
+    RAG_DIR = os.getenv("RAG_DIR", "")
+    vdb_entities_path = os.path.join(RAG_DIR, "vdb_entities.json")
+
+    # 查询 entities_vdb 获取初始结果
     results = await entities_vdb.query(query, top_k=query_param.top_k)
-    if not len(results):
+    print("Initial results:", results)
+
+    # 加载 vdb_entities.json 的数据
+    vdb_entities = load_json(vdb_entities_path)
+    vdb_entities_data = vdb_entities["data"]
+
+    # 将 query 转换为关键词数组
+    query_keywords = [q.strip() for q in query.split() if q.strip()]
+    print("Extracted query keywords:", query_keywords)
+
+    # 查询 vdb_entities 并头插法插入 results
+    for keyword in query_keywords:
+        for entity in vdb_entities_data:
+            similarity, is_related = calculate_similarity(keyword, entity["entity_name"])
+            if is_related:
+                entity["__metrics__"] = similarity
+                results.insert(0, entity)
+
+    # 根据关键词数组重新排序结果
+    def relevance_score(result):
+        for i, keyword in enumerate(query_keywords):
+            similarity, is_related = calculate_similarity(keyword, result["entity_name"])
+            if is_related:
+                return i  # 按关键词顺序评分
+        return len(query_keywords)  # 如果没有匹配，排在最后
+
+    results = sorted(results, key=relevance_score)
+    print("Reordered results:", results)
+
+    if not results:
         return "", "", ""
-    # get entity information
+
+    # 获取节点数据
     node_datas = await asyncio.gather(
         *[knowledge_graph_inst.get_node(r["entity_name"]) for r in results]
     )
@@ -888,6 +947,15 @@ async def _find_most_related_edges_from_entities(
     )
     return all_edges_data
 
+# 重排函数
+def reorder_results(results, keywords):
+    def relevance_score(result):
+        for i, keyword in enumerate(keywords):
+            src_similarity, src_bool = calculate_similarity(keyword, result["src_id"])
+            tgt_similarity, tgt_bool = calculate_similarity(keyword, result["tgt_id"])
+            if src_bool or tgt_bool:
+                return i  # 按照关键词顺序评分
+        return len(keywords)  # 如果没有匹配，排在后面
 
 async def _get_edge_data(
     keywords,
@@ -1238,6 +1306,8 @@ async def mix_kg_vector_query(
             kw_prompt = PROMPTS["keywords_extraction"].format(
                 query=query, examples=examples, language=language
             )
+            if system_prompt:
+                kw_prompt = system_prompt + f"\n" + kw_prompt
             result = await use_model_func(kw_prompt, keyword_extraction=True)
 
             match = re.search(r"\{.*\}", result, re.DOTALL)

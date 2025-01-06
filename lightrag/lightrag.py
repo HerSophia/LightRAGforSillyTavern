@@ -157,7 +157,7 @@ class LightRAG:
     )
 
     # embedding_func: EmbeddingFunc = field(default_factory=lambda:hf_embedding)
-    embedding_func: EmbeddingFunc = field(default_factory=lambda: openai_embedding)
+    embedding_func: EmbeddingFunc = field(default_factory=lambda: openai_compatible_embedding)
     embedding_batch_num: int = 32
     embedding_func_max_async: int = 16
 
@@ -594,11 +594,11 @@ class LightRAG:
             if update_storage:
                 await self._insert_done()
 
-    def query(self, query: str, param: QueryParam = QueryParam()):
+    def query(self, query: str, system_prompt_from_frontend = None,param: QueryParam = QueryParam()):
         loop = always_get_an_event_loop()
-        return loop.run_until_complete(self.aquery(query, param))
+        return loop.run_until_complete(self.aquery(query, param,system_prompt_from_frontend))
 
-    async def aquery(self, query: str, param: QueryParam = QueryParam()):
+    async def aquery(self, query: str, system_prompt_from_frontend = None,param: QueryParam = QueryParam()):
         if param.mode in ["local", "global", "hybrid"]:
             response = await kg_query(
                 query,
@@ -608,6 +608,7 @@ class LightRAG:
                 self.text_chunks,
                 param,
                 asdict(self),
+                system_prompt=system_prompt_from_frontend,
                 hashing_kv=self.llm_response_cache
                 if self.llm_response_cache
                 and hasattr(self.llm_response_cache, "global_config")
@@ -615,6 +616,7 @@ class LightRAG:
                     namespace="llm_response_cache",
                     global_config=asdict(self),
                     embedding_func=None,
+
                 ),
             )
         elif param.mode == "naive":
@@ -624,6 +626,7 @@ class LightRAG:
                 self.text_chunks,
                 param,
                 asdict(self),
+                system_prompt=system_prompt_from_frontend,
                 hashing_kv=self.llm_response_cache
                 if self.llm_response_cache
                 and hasattr(self.llm_response_cache, "global_config")
@@ -643,6 +646,7 @@ class LightRAG:
                 self.text_chunks,
                 param,
                 asdict(self),
+                system_prompt=system_prompt_from_frontend,
                 hashing_kv=self.llm_response_cache
                 if self.llm_response_cache
                 and hasattr(self.llm_response_cache, "global_config")

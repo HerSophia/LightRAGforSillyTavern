@@ -15,3 +15,5 @@ ignore_this.txt
 /backup/
 /python/
 lightrag.log
+/graph/
+/files/

@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
-from typing import TypedDict, Union, Literal, Generic, TypeVar
+from typing import TypedDict, Union, Literal, Generic, TypeVar, Optional, Dict, Any
+from enum import Enum
 
 import numpy as np
 
@@ -15,17 +16,21 @@ T = TypeVar("T")
 
 @dataclass
 class QueryParam:
-    mode: Literal["local", "global", "hybrid", "naive"] = "global"
+    mode: Literal["local", "global", "hybrid", "naive", "mix"] = "global"
     only_need_context: bool = False
+    only_need_prompt: bool = False
     response_type: str = "Multiple Paragraphs"
+    stream: bool = False
     # Number of top-k items to retrieve; corresponds to entities in "local" mode and relationships in "global" mode.
     top_k: int = 60
+    # Number of document chunks to retrieve.
+    # top_n: int = 10
     # Number of tokens for the original chunks.
-    max_token_for_text_unit: int = 2048
+    max_token_for_text_unit: int = 4000
     # Number of tokens for the relationship descriptions
-    max_token_for_global_context: int = 2048
+    max_token_for_global_context: int = 4000
     # Number of tokens for the entity descriptions
-    max_token_for_local_context: int = 2048
+    max_token_for_local_context: int = 4000
 
 
 @dataclass
@@ -125,3 +130,42 @@ class BaseGraphStorage(StorageNameSpace):
 
     async def embed_nodes(self, algorithm: str) -> tuple[np.ndarray, list[str]]:
         raise NotImplementedError("Node embedding is not used in lightrag.")
+
+
+class DocStatus(str, Enum):
+    """Document processing status enum"""
+
+    PENDING = "pending"
+    PROCESSING = "processing"
+    PROCESSED = "processed"
+    FAILED = "failed"
+
+
+@dataclass
+class DocProcessingStatus:
+    """Document processing status data structure"""
+
+    content_summary: str  # First 100 chars of document content
+    content_length: int  # Total length of document
+    status: DocStatus  # Current processing status
+    created_at: str  # ISO format timestamp
+    updated_at: str  # ISO format timestamp
+    chunks_count: Optional[int] = None  # Number of chunks after splitting
+    error: Optional[str] = None  # Error message if failed
+    metadata: Dict[str, Any] = field(default_factory=dict)  # Additional metadata
+
+
+class DocStatusStorage(BaseKVStorage):
+    """Base class for document status storage"""
+
+    async def get_status_counts(self) -> Dict[str, int]:
+        """Get counts of documents in each status"""
+        raise NotImplementedError
+
+    async def get_failed_docs(self) -> Dict[str, DocProcessingStatus]:
+        """Get all failed documents"""
+        raise NotImplementedError
+
+    async def get_pending_docs(self) -> Dict[str, DocProcessingStatus]:
+        """Get all pending documents"""
+        raise NotImplementedError
