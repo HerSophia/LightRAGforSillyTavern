@@ -388,32 +388,62 @@ async def chat_completions_endpoint(request: ChatRequest):
 
         # Stream generator
         async def stream_generator():
-            # Start the task to update LLM_MODEL after 1 second
+            # 启动异步任务
             update_task = asyncio.create_task(update_llm_model())
 
-            # Perform the rag.query operation
-            result = rag.query(
-                processed_message,
-                param=QueryParam(mode="local", only_need_context=False),
-                system_prompt_from_frontend=system_prompt,  # 添加 system_prompt
+            try:
+                # 执行 RAG 查询
+                result = rag.query(
+                    processed_message,
+                    param=QueryParam(mode="mix", only_need_context=False),
+                    system_prompt_from_frontend=system_prompt,  # 添加 system_prompt
                 )
 
-            # Ensure that LLM_MODEL is reverted back after rag.query completes
-            if not update_task.done():
-                update_task.cancel()
-                try:
-                    await update_task
-                except asyncio.CancelledError:
-                    pass
-            LLM_MODEL = original_llm_model
+                # 确保 update_task 被正确取消
+                if not update_task.done():
+                    update_task.cancel()
+                    try:
+                        await update_task
+                    except asyncio.CancelledError:
+                        pass
 
-            content_chunks = result.split()
-            for chunk in content_chunks:
-                yield f'data: {{"id": "chunk", "object": "chat.completion.chunk", "choices": [{{"index": 0, "delta": {{"content": "{chunk}"}}}}]}}\n\n'
-                await asyncio.sleep(0.1)
+                # 恢复 LLM_MODEL
+                LLM_MODEL = original_llm_model
 
-            yield 'data: {"id": "done", "object": "chat.completion.chunk", "choices": [{"index": 0, "delta": {}, "finish_reason": "stop"}]}\n\n'
+                # 按换行符和空格生成块
+                current_chunk = ""
+                for char in result:
+                    current_chunk += char
+                    # 每次遇到换行符或积累到一定长度时发送
+                    if char in ("\n", " ") or len(current_chunk) >= 50:
+                        yield (
+                            f'data: {json.dumps({"id": "chunk", "object": "chat.completion.chunk", "choices": [{"index": 0, "delta": {"content": current_chunk}}]})}\n\n'
+                        )
+                        await asyncio.sleep(0.1)  # 模拟流式传输的间隔
+                        current_chunk = ""
 
+                # 发送剩余内容
+                if current_chunk:
+                    yield (
+                        f'data: {json.dumps({"id": "chunk", "object": "chat.completion.chunk", "choices": [{"index": 0, "delta": {"content": current_chunk}}]})}\n\n'
+                    )
+
+                # 发送结束信号
+                yield 'data: {"id": "done", "object": "chat.completion.chunk", "choices": [{"index": 0, "delta": {}, "finish_reason": "stop"}]}\n\n'
+
+            except Exception as e:
+                # 处理异常（记录日志或返回错误流）
+                yield (
+                    f'data: {json.dumps({"id": "error", "object": "chat.error", "message": str(e)})}\n\n'
+                )
+            finally:
+                # 确保 update_task 被正确取消
+                if not update_task.done():
+                    update_task.cancel()
+                    try:
+                        await update_task
+                    except asyncio.CancelledError:
+                        pass
         # Stream or standard response
         if request.stream:
             return StreamingResponse(stream_generator(), media_type="text/event-stream")
@@ -424,7 +454,7 @@ async def chat_completions_endpoint(request: ChatRequest):
             # Perform the rag.query operation
             result = rag.query(
                 processed_message,
-                param=QueryParam(mode="local", only_need_context=False),
+                param=QueryParam(mode="mix", only_need_context=False),
                 system_prompt_from_frontend=system_prompt,  # 添加 system_prompt
                 )
 

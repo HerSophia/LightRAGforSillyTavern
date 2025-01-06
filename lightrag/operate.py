@@ -4,10 +4,12 @@ import re
 import os
 from dotenv import load_dotenv
 from Levenshtein import ratio
+from numba import Optional
 from tqdm.asyncio import tqdm as tqdm_async
-from typing import Union
+
 from collections import Counter, defaultdict
 import warnings
+from typing import Union, Optional
 from .utils import (
     logger,
     clean_str,
@@ -34,6 +36,14 @@ from .base import (
 )
 from .prompt import GRAPH_FIELD_SEP, PROMPTS
 import time
+
+from collections import defaultdict
+from asyncio import Lock
+
+# 全局变量存储已解析的实体，使用 defaultdict 以便按名称快速去重
+global_entities = defaultdict(list)
+global_entities_lock = Lock()  # 异步锁，确保线程安全
+
 
 
 def chunking_by_token_size(
@@ -308,11 +318,22 @@ async def extract_entities(
         chunk_key = chunk_key_dp[0]
         chunk_dp = chunk_key_dp[1]
         content = chunk_dp["content"]
-        # hint_prompt = entity_extract_prompt.format(**context_base, input_text=content)
-        hint_prompt = entity_extract_prompt.format(
-            **context_base, input_text="{input_text}"
-        ).format(**context_base, input_text=content)
+        # 从全局变量获取当前已解析的实体
+        async with global_entities_lock:
+            existing_entities_context = "\n".join(
+                [f"- {entity['name']}: {entity['description']}" for entity in global_entities.values()]
+            )
 
+        # 更新上下文
+        context_base_with_entities = context_base.copy()
+        context_base_with_entities["existing_entities"] = existing_entities_context
+
+        # 将已解析实体加入到提示中
+        hint_prompt = entity_extract_prompt.format(
+            **context_base_with_entities,
+            input_text=content
+        )
+        print(hint_prompt)
         final_result = await use_llm_func(hint_prompt)
         history = pack_user_ass_to_openai_messages(hint_prompt, final_result)
         for now_glean_index in range(entity_extract_max_gleaning):
@@ -359,6 +380,21 @@ async def extract_entities(
                 maybe_edges[(if_relation["src_id"], if_relation["tgt_id"])].append(
                     if_relation
                 )
+
+            # 更新全局实体
+        # 更新全局实体
+        async with global_entities_lock:
+            for entity_name, entities in maybe_nodes.items():
+                for new_entity in entities:
+                    if entity_name in global_entities:
+                        # 如果已存在该实体，则追加描述
+                        existing_entity = global_entities[entity_name]
+                        if new_entity["description"] not in existing_entity["description"]:
+                            existing_entity["description"] += f" | {new_entity['description']}"
+                    else:
+                        # 如果不存在该实体，直接添加
+                        global_entities[entity_name] = new_entity
+        #print(f"global_entities:\n",global_entities)
         already_processed += 1
         already_entities += len(maybe_nodes)
         already_relations += len(maybe_edges)
@@ -469,6 +505,7 @@ async def kg_query(
     text_chunks_db: BaseKVStorage[TextChunkSchema],
     query_param: QueryParam,
     global_config: dict,
+    system_prompt: Optional[str] = None,  # 新增参数
     hashing_kv: BaseKVStorage = None,
 ) -> str:
     # Handle cache
@@ -558,6 +595,11 @@ async def kg_query(
     )
     if query_param.only_need_prompt:
         return sys_prompt
+
+    # 如果前端提供了 system_prompt
+    if system_prompt:
+        sys_prompt = system_prompt + f"\n" + sys_prompt
+
     response = await use_model_func(
         query,
         system_prompt=sys_prompt,
@@ -1214,6 +1256,7 @@ async def naive_query(
     if query_param.only_need_context:
         return section
 
+    response_type = query_param.response_type
     sys_prompt_temp = PROMPTS["naive_rag_response"]
     sys_prompt = sys_prompt_temp.format(
         content_data=section, response_type=query_param.response_type
@@ -1265,6 +1308,7 @@ async def mix_kg_vector_query(
     text_chunks_db: BaseKVStorage[TextChunkSchema],
     query_param: QueryParam,
     global_config: dict,
+    system_prompt: Optional[str] = None,  # 新增参数
     hashing_kv: BaseKVStorage = None,
 ) -> str:
     """
@@ -1415,6 +1459,8 @@ async def mix_kg_vector_query(
     if query_param.only_need_context:
         return {"kg_context": kg_context, "vector_context": vector_context}
 
+
+
     # 5. Construct hybrid prompt
     sys_prompt = PROMPTS["mix_rag_response"].format(
         kg_context=kg_context
@@ -1428,6 +1474,10 @@ async def mix_kg_vector_query(
 
     if query_param.only_need_prompt:
         return sys_prompt
+
+    # 如果前端提供了 system_prompt
+    if system_prompt:
+        sys_prompt = system_prompt + f"\n" + sys_prompt
 
     # 6. Generate response
     response = await use_model_func(

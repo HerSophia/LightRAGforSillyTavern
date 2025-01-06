@@ -121,17 +121,25 @@ Output:
 ("relationship"{tuple_delimiter}"Alex"{tuple_delimiter}"Humanity's Response"{tuple_delimiter}"Alex and his team are the key figures in Humanity's Response to the unknown intelligence."{tuple_delimiter}"collective action, cosmic significance"{tuple_delimiter}8){record_delimiter}
 ("relationship"{tuple_delimiter}"Control"{tuple_delimiter}"Intelligence"{tuple_delimiter}"The concept of Control is challenged by the Intelligence that writes its own rules."{tuple_delimiter}"power dynamics, autonomy"{tuple_delimiter}7){record_delimiter}
 ("content_keywords"{tuple_delimiter}"first contact, control, communication, cosmic significance"){completion_delimiter}
+#############################
+-Real Data-
+######################
+Entity_types: {entity_types}
+Existing_entities: {existing_entities}
+Text: {input_text}
+######################
+Output:
+"""
 #############################""",
 ]
 
 PROMPTS[
     "summarize_entity_descriptions"
-] = """You are a helpful assistant responsible for generating a comprehensive summary of the data provided below.
-Given one or two entities, and a list of descriptions, all related to the same entity or group of entities.
-Please concatenate all of these into a single, comprehensive description. Make sure to include information collected from all the descriptions.
-If the provided descriptions are contradictory, please resolve the contradictions and provide a single, coherent summary.
-Make sure it is written in third person, and include the entity names so we the have full context.
-Use {language} as output language.
+] = """您是一名得力助手，负责对下面提供的数据进行全面汇总。
+给定一个或两个实体，以及一系列与同一实体或实体组相关的描述，
+请将所有这些描述合并为一个完整的描述。确保包括所有描述中收集到的信息，尤其是，如果有相对应的描述，那么就得有准确的时间、地点、对象、事件。
+如果提供的描述之间存在矛盾，请解决这些矛盾，并提供一个一致、连贯的总结。
+确保使用第三人称写作，使用中文。并包括实体名称，以便我们能够完整地理解上下文。
 
 #######
 -Data-
