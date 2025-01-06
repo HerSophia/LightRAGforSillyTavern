@@ -42,7 +42,6 @@ from asyncio import Lock
 
 # 全局变量存储已解析的实体，使用 defaultdict 以便按名称快速去重
 global_entities = defaultdict(list)
-global_entities_lock = Lock()  # 异步锁，确保线程安全
 
 
 
@@ -269,6 +268,28 @@ def output_prompt(prompt):
         file.write(prompt)
     return None
 
+
+# 将 global_entities 写入文件
+def write_global_entities_to_txt(global_entities):
+    output_path = r"H:\LightRAG-for-OpenAI-Standard-Frontend\global_entities.txt"
+    # 构建写入的字符串内容
+    content_lines = []
+    for entity_name, entity_info in global_entities.items():
+        entity_type = entity_info.get("type", "未知类型")
+        entity_description = entity_info.get("description", "无描述")
+        content_lines.append(f"{entity_name} ({entity_type}): {entity_description}")
+
+    # 拼接为最终的字符串内容
+    file_content = "\n".join(content_lines)
+
+    # 确保目录存在
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    # 写入文件
+    with open(output_path, 'w', encoding='utf-8') as file:
+        file.write(file_content)
+
+
 async def extract_entities(
     chunks: dict[str, TextChunkSchema],
     knowledge_graph_inst: BaseGraphStorage,
@@ -373,18 +394,61 @@ async def extract_entities(
         else:
             return await use_llm_func(input_text)
 
+    async def _get_global_entities():
+        # 从全局变量获取当前已解析的实体
+        try:
+            if not global_entities:
+                return []
+            existing_entities_context = "\n".join(
+                [f"- {entity_name}" for entity_name in
+                 global_entities.items()]
+            )
+            # 可以在这里对 `existing_entities_context` 进行进一步处理
+            return existing_entities_context
+        except Exception as e:
+            # 打印或记录异常，确保能快速定位问题
+            print(f"Error occurred: {e}")
+            raise  # 重新抛出异常
+
     async def _process_single_content(chunk_key_dp: tuple[str, TextChunkSchema]):
         nonlocal already_processed, already_entities, already_relations
         chunk_key = chunk_key_dp[0]
         chunk_dp = chunk_key_dp[1]
         content = chunk_dp["content"]
-        # hint_prompt = entity_extract_prompt.format(**context_base, input_text=content)
-        # 从全局变量获取当前已解析的实体
 
+        load_dotenv(override=True)
+
+        RAG_DIR = os.getenv("RAG_DIR", "")
+        vdb_entities_path = os.path.join(RAG_DIR, "vdb_entities.json")
+
+        existing_entities = await _get_global_entities()
+        existing_entities_names = str(existing_entities)
         hint_prompt = entity_extract_prompt.format(
             **context_base, input_text="{input_text}"
         ).format(**context_base, input_text=content)
-        output_prompt(hint_prompt)
+
+        # 如果vdb_entities.json存在并且实体元素的确存在，则读取已存在于向量库中的实体的名字
+        vdb_entities = load_json(vdb_entities_path)
+        vdb_entities_data = vdb_entities["data"]
+        vdb_entities_entity_names = [item.get("entity_name") for item in vdb_entities_data if "entity_name" in item]
+        cleaned_vdb_entities_entity_names = [name.strip('"') for name in vdb_entities_entity_names]
+        cleaned_vdb_entities_entity_names = str(cleaned_vdb_entities_entity_names)
+        # 查找插入点
+        insert_marker = "-existing_entities-\n已存在的实体如下，可供参考："
+        if insert_marker in hint_prompt:
+            insert_index = hint_prompt.index(insert_marker) + len(insert_marker)
+            # 拼接字符串
+            updated_hint_prompt = (
+                    hint_prompt[:insert_index] +
+                    "\n" + existing_entities_names +
+                    "\n" + cleaned_vdb_entities_entity_names +  # 插入内容
+                    hint_prompt[insert_index:]  # 拼接剩余内容
+            )
+        else:
+            raise ValueError("The marker '-existing_entities-' was not found in the hint_prompt.")
+
+        hint_prompt = updated_hint_prompt
+        #output_prompt(hint_prompt)
         final_result = await _user_llm_func_with_cache(hint_prompt)
         history = pack_user_ass_to_openai_messages(hint_prompt, final_result)
         for now_glean_index in range(entity_extract_max_gleaning):
@@ -433,17 +497,17 @@ async def extract_entities(
                 maybe_edges[(if_relation["src_id"], if_relation["tgt_id"])].append(
                     if_relation
                 )
-        async with global_entities_lock:
-            for entity_name, entities in maybe_nodes.items():
-                for new_entity in entities:
-                    if entity_name in global_entities:
-                        # 如果已存在该实体，则追加描述
-                        existing_entity = global_entities[entity_name]
-                        if new_entity["description"] not in existing_entity["description"]:
-                            existing_entity["description"] += f" | {new_entity['description']}"
-                    else:
-                        # 如果不存在该实体，直接添加
-                        global_entities[entity_name] = new_entity
+        for entity_name, entities in maybe_nodes.items():
+            for new_entity in entities:
+                if entity_name in global_entities:
+                    # 如果已存在该实体，则追加描述
+                    existing_entity = global_entities[entity_name]
+                    if new_entity["description"] not in existing_entity["description"]:
+                        existing_entity["description"] += f" | {new_entity['description']}"
+                else:
+                    # 如果不存在该实体，直接添加
+                    global_entities[entity_name] = new_entity
+        #write_global_entities_to_txt(global_entities)
         already_processed += 1
         already_entities += len(maybe_nodes)
         already_relations += len(maybe_edges)
@@ -791,7 +855,7 @@ def calculate_similarity(keyword, target):
 def load_json(path):
     if not os.path.exists(path):
         print(f"path error:{path}")
-        return []
+        return {}
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 

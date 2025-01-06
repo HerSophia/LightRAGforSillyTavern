@@ -14,7 +14,8 @@ PROMPTS["entity_extraction"] = """-Goal-
 给定一份可能与此活动相关的文本文件和一个实体类型列表，从文本中识别出所有属于这些类型的实体，以及识别出的实体之间的所有关系。
 Use {language} as output language.
 
-
+-existing_entities-
+已存在的实体如下，可供参考：
 
 -Steps-
 1. 识别所有实体。对每个实体，提取以下信息：
